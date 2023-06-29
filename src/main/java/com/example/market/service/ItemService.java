@@ -55,4 +55,20 @@ public class ItemService {
         item.update(dto);
     }
 
+    @Transactional
+    public void deleteItem(Long id, ItemDeleteRequestDto dto) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!item.getWriter().equals(dto.getWriter())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (!item.getPassword().equals(dto.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        itemRepository.delete(item);
+    }
+
 }

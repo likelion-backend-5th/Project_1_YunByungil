@@ -45,4 +45,11 @@ public class ItemController {
 
         return new ItemResponseDto("물품이 수정되었습니다.");
     }
+
+    @DeleteMapping("/items/{itemId}")
+    public ItemResponseDto deleteItem(@PathVariable Long itemId,
+                                      @RequestBody ItemDeleteRequestDto dto) {
+        itemService.deleteItem(itemId, dto);
+        return new ItemResponseDto("물품을 삭제했습니다.");
+    }
 }
