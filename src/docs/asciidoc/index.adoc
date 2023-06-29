@@ -3,12 +3,26 @@
 :toclevels: 2
 :sectlinks:
 
-[[resources-post]]
-== Post
+[[resources-test]]
+== test
 
-[[resources-post]]
+[[resources-test]]
 === test 생성
 
 ==== HTTP request
 
 include::{snippets}/test/http-request.adoc[]
+
+[[resources-item]]
+== Item
+
+[[resources-item]]
+=== Item 등록
+
+==== HTTP request
+
+include::{snippets}/items/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/items/request-fields.adoc[]
