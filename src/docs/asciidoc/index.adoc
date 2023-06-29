@@ -1,0 +1,14 @@
+= Spring REST Docs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[resources-post]]
+== Post
+
+[[resources-post]]
+=== test 생성
+
+==== HTTP request
+
+include::{snippets}/test/http-request.adoc[]
