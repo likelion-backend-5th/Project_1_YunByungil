@@ -1,9 +1,7 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.ItemCreateRequestDto;
-import com.example.market.dto.ItemListResponseDto;
-import com.example.market.dto.ItemOneResponseDto;
+import com.example.market.dto.*;
 import com.example.market.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,16 +10,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class ItemService {
 
     private final ItemRepository itemRepository;
 
+    @Transactional
     public void create(ItemCreateRequestDto dto) {
         itemRepository.save(dto.toEntity());
     }
@@ -40,6 +41,18 @@ public class ItemService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
 
         return new ItemOneResponseDto(item);
+    }
+
+    @Transactional
+    public void updateItem(Long id, ItemUpdateRequestDto dto) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!item.getPassword().equals(dto.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        item.update(dto);
     }
 
 }

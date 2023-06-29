@@ -1,9 +1,6 @@
 package com.example.market.controller;
 
-import com.example.market.dto.ItemCreateRequestDto;
-import com.example.market.dto.ItemListResponseDto;
-import com.example.market.dto.ItemOneResponseDto;
-import com.example.market.dto.ItemResponseDto;
+import com.example.market.dto.*;
 import com.example.market.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +36,13 @@ public class ItemController {
         ItemOneResponseDto itemDto = itemService.readItemOne(itemId);
 
         return ResponseEntity.ok().body(itemDto);
+    }
+
+    @PutMapping("/items/{itemId}")
+    public ItemResponseDto updateItem(@PathVariable Long itemId,
+                                      @RequestBody ItemUpdateRequestDto dto) {
+        itemService.updateItem(itemId, dto);
+
+        return new ItemResponseDto("물품이 수정되었습니다.");
     }
 }

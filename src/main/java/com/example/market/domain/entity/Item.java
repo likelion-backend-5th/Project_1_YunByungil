@@ -1,5 +1,6 @@
 package com.example.market.domain.entity;
 
+import com.example.market.dto.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,5 +34,13 @@ public class Item {
         this.status = "판매중";
         this.writer = writer;
         this.password = password;
+    }
+
+    public void update(ItemUpdateRequestDto dto) {
+        this.title = dto.getTitle();
+        this.description = dto.getDescription();
+        this.minPriceWanted = dto.getMinPriceWanted();
+        this.writer = dto.getWriter();
+        this.password = dto.getPassword();
     }
 }
