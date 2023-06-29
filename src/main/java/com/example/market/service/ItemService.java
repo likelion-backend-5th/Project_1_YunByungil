@@ -48,9 +48,7 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!item.getPassword().equals(dto.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
 
         item.update(dto);
     }
@@ -60,15 +58,19 @@ public class ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!item.getWriter().equals(dto.getWriter())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        if (!item.getPassword().equals(dto.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
 
         itemRepository.delete(item);
+    }
+
+    private void checkWriterAndPassword(String writer, String password , Item item) {
+        if (!item.getWriter().equals(writer)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (!item.getPassword().equals(password)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
