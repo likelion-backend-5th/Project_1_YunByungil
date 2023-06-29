@@ -5,8 +5,12 @@ import com.example.market.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -52,4 +56,16 @@ public class ItemController {
         itemService.deleteItem(itemId, dto);
         return new ItemResponseDto("물품을 삭제했습니다.");
     }
+
+    @PutMapping("/items/{itemId}/image")
+    public ItemResponseDto updateItemImage(@PathVariable Long itemId,
+                                           @RequestParam MultipartFile image,
+                                           @RequestParam String writer,
+                                           @RequestParam String password) throws IOException {
+
+        itemService.updateItemImage(itemId, image, writer, password);
+        return new ItemResponseDto("이미지가 등록되었습니다.");
+    }
+
+
 }

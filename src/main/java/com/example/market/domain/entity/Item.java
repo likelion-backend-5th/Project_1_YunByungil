@@ -43,4 +43,8 @@ public class Item {
         this.writer = dto.getWriter();
         this.password = dto.getPassword();
     }
+
+    public void updateItemImage(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
