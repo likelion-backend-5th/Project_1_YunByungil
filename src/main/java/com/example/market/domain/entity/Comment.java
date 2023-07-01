@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,13 @@ public class Comment {
     private String password;
     private String content;
     private String reply;
+
+    @Builder
+    public Comment(Long item_id, String writer, String password, String content, String reply) {
+        this.item_id = item_id;
+        this.writer = writer;
+        this.password = password;
+        this.content = content;
+        this.reply = reply;
+    }
 }
