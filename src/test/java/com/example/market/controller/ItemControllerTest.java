@@ -2,6 +2,8 @@ package com.example.market.controller;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.ItemCreateRequestDto;
+import com.example.market.dto.ItemDeleteRequestDto;
+import com.example.market.dto.ItemUpdateRequestDto;
 import com.example.market.repository.ItemRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -24,8 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
@@ -158,7 +159,7 @@ class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.[0].title").value("제목" + 0))
 //                .andExpect(jsonPath("$[0].description").value("내용" + 0))
-                .andDo(document("/item-get-all",
+                .andDo(document("/items-get-all",
                         queryParameters(
                                 parameterWithName("page").description("현재 페이지"),
                                 parameterWithName("limit").description("한 페이지당 조회할 데이터 개수 (default = 20)")
@@ -197,6 +198,75 @@ class ItemControllerTest {
                         )
                 ));
 
+
+        // then
+
+    }
+
+    @DisplayName("아이템 정보 수정 API 테스트")
+    @Test
+    void updateItemApi() throws Exception {
+        // given
+        ItemCreateRequestDto dto = createRequestDto();
+        Item savedItem = itemRepository.save(dto.toEntity());
+
+        ItemUpdateRequestDto updateDto = ItemUpdateRequestDto.builder()
+                .title("수정 완료")
+                .minPriceWanted(20_000)
+                .description("수정 완료")
+                .writer(dto.getWriter())
+                .password(dto.getPassword())
+                .build();
+
+        String url = "http://localhost:8080/items/{itemId}";
+
+        // when
+        mvc.perform(put(url, savedItem.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updateDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/items-update",
+                        pathParameters(
+                                parameterWithName("itemId").description("ID")
+                        ),
+                        requestFields(
+                                fieldWithPath("title").description("수정할 제목"),
+                                fieldWithPath("description").description("수정할 내용"),
+                                fieldWithPath("minPriceWanted").description("수정할 금액"),
+                                fieldWithPath("writer").description("작성자 계정"),
+                                fieldWithPath("password").description("작성자 비밀번호")
+                        )));
+
+        // then
+
+    }
+
+    @DisplayName("아이템 삭제 API 테스트")
+    @Test
+    void deleteItemApi() throws Exception {
+        // given
+        ItemCreateRequestDto dto = createRequestDto();
+        Item savedItem = itemRepository.save(dto.toEntity());
+
+        ItemDeleteRequestDto deleteDto = ItemDeleteRequestDto.builder()
+                .writer(dto.getWriter())
+                .password(dto.getPassword())
+                .build();
+
+        String url = "http://localhost:8080/items/{itemId}";
+        // when
+        mvc.perform(delete(url, savedItem.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(deleteDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/items-delete",
+                        requestFields(
+                                fieldWithPath("writer").description("작성자 계정"),
+                                fieldWithPath("password").description("작성자 비밀번호")
+                        ),
+                        pathParameters(
+                                parameterWithName("itemId").description("ID")
+                        )));
 
         // then
 
