@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Item;
 import com.example.market.dto.ItemCreateRequestDto;
 import com.example.market.dto.ItemListResponseDto;
 import com.example.market.dto.ItemOneResponseDto;
+import com.example.market.dto.ItemUpdateRequestDto;
 import com.example.market.repository.ItemRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -104,6 +105,79 @@ class ItemServiceTest {
     void notItemException() {
         assertThatThrownBy(() -> {
             itemService.readItemOne(1L);
+        }).isInstanceOf(ResponseStatusException.class);
+    }
+
+    @DisplayName("아이템 수정 테스트(이미지X)")
+    @Test
+    void updateItem() {
+        // given
+        ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
+                .title("새로운 제목")
+                .writer("새로운 작성자")
+                .minPriceWanted(10_000)
+                .description("새로운 내용")
+                .password("새로운 비밀번호")
+                .build();
+
+        Item savedItem = itemRepository.save(dto.toEntity());
+
+        ItemUpdateRequestDto updateDto = ItemUpdateRequestDto.builder()
+                .title("수정된 제목")
+                .writer("새로운 작성자")
+                .minPriceWanted(20_000)
+                .description("수정된 내용")
+                .password("새로운 비밀번호")
+                .build();
+
+
+        // when
+        itemService.updateItem(savedItem.getId(), updateDto);
+        Item updateItem = itemRepository.findById(savedItem.getId()).get();
+
+        // then
+        assertThat(updateItem.getTitle()).isEqualTo(updateDto.getTitle());
+    }
+
+    @DisplayName("아이템 수정 Writer or Password 틀렸을 때 예외 발생")
+    @Test
+    void updateItemDontMatchWriterOrPassword() {
+        // given
+        ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
+                .title("새로운 제목")
+                .writer("새로운 작성자")
+                .minPriceWanted(10_000)
+                .description("새로운 내용")
+                .password("새로운 비밀번호")
+                .build();
+
+        Item savedItem = itemRepository.save(dto.toEntity());
+
+        ItemUpdateRequestDto notSameWriterUpdateDto = ItemUpdateRequestDto.builder()
+                .title("수정된 제목")
+                .writer("다른 작성자")
+                .minPriceWanted(20_000)
+                .description("수정된 내용")
+                .password("새로운 비밀번호")
+                .build();
+
+        ItemUpdateRequestDto notSamePasswordUpdateDto = ItemUpdateRequestDto.builder()
+                .title("수정된 제목")
+                .writer("새로운 작성자")
+                .minPriceWanted(20_000)
+                .description("수정된 내용")
+                .password("다른 비밀번호")
+                .build();
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> {
+            itemService.updateItem(savedItem.getId(), notSameWriterUpdateDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        assertThatThrownBy(() -> {
+            itemService.updateItem(savedItem.getId(), notSamePasswordUpdateDto);
         }).isInstanceOf(ResponseStatusException.class);
     }
 

@@ -2,6 +2,7 @@ package com.example.market.dto;
 
 import com.example.market.domain.entity.Item;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,15 @@ public class ItemUpdateRequestDto {
     private int minPriceWanted;
     private String writer;
     private String password;
+
+    @Builder
+    public ItemUpdateRequestDto(String title, String description, int minPriceWanted, String writer, String password) {
+        this.title = title;
+        this.description = description;
+        this.minPriceWanted = minPriceWanted;
+        this.writer = writer;
+        this.password = password;
+    }
 
     public Item toEntity() {
         return Item.builder()
