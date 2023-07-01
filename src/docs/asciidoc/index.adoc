@@ -23,6 +23,84 @@ include::{snippets}/test/http-request.adoc[]
 
 include::{snippets}/items/http-request.adoc[]
 
+==== HTTP response
+
+include::{snippets}/items/http-response.adoc[]
+
 ==== Request Field
 
 include::{snippets}/items/request-fields.adoc[]
+
+[[resources-item-get-one]]
+=== Item 상세 조회
+
+==== HTTP request
+
+include::{snippets}/items-get-one/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/items-get-one/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/items-get-one/http-response.adoc[]
+
+[[resources-items-get-all]]
+=== Item 페이지 단위 조회
+
+==== HTTP request
+
+include::{snippets}/items-get-all/http-request.adoc[]
+
+==== Query Parameters
+
+include::{snippets}/items-get-all/query-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/items-get-all/http-response.adoc[]
+
+==== Response field
+
+include::{snippets}/items-get-all/response-fields.adoc[]
+
+[[resources-items-update]]
+=== Item 수정
+
+==== HTTP request
+
+include::{snippets}/items-update/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/items-update/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/items-update/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/items-update/http-response.adoc[]
+
+[[resources-items-delete]]
+=== Item 삭제
+
+==== HTTP request
+
+include::{snippets}/items-delete/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/items-delete/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/items-delete/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/items-delete/http-response.adoc[]
+
+
