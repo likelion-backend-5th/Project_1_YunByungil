@@ -1,9 +1,9 @@
 package com.example.market.controller;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.ItemCreateRequestDto;
-import com.example.market.dto.ItemDeleteRequestDto;
-import com.example.market.dto.ItemUpdateRequestDto;
+import com.example.market.dto.item.request.ItemCreateRequestDto;
+import com.example.market.dto.item.request.ItemDeleteRequestDto;
+import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.repository.ItemRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -16,14 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;

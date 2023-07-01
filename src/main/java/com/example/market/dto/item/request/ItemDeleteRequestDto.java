@@ -1,4 +1,4 @@
-package com.example.market.dto;
+package com.example.market.dto.item.request;
 
 import lombok.*;
 

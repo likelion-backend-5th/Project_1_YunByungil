@@ -1,11 +1,15 @@
 package com.example.market.controller;
 
-import com.example.market.dto.*;
+import com.example.market.dto.item.request.ItemCreateRequestDto;
+import com.example.market.dto.item.request.ItemDeleteRequestDto;
+import com.example.market.dto.item.request.ItemUpdateRequestDto;
+import com.example.market.dto.item.response.ItemListResponseDto;
+import com.example.market.dto.item.response.ItemOneResponseDto;
+import com.example.market.dto.item.response.ItemResponseDto;
 import com.example.market.service.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

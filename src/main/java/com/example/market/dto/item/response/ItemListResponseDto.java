@@ -1,4 +1,4 @@
-package com.example.market.dto;
+package com.example.market.dto.item.response;
 
 import com.example.market.domain.entity.Item;
 import lombok.AccessLevel;

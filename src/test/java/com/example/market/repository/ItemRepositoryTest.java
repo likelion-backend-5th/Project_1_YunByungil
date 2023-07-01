@@ -1,15 +1,13 @@
 package com.example.market.repository;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.ItemCreateRequestDto;
-import org.assertj.core.api.Assertions;
+import com.example.market.dto.item.request.ItemCreateRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class ItemRepositoryTest {

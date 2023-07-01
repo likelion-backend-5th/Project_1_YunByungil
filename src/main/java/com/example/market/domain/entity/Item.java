@@ -1,12 +1,11 @@
 package com.example.market.domain.entity;
 
-import com.example.market.dto.ItemUpdateRequestDto;
+import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 @Table(name = "sales_item")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

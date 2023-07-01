@@ -1,9 +1,12 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.*;
+import com.example.market.dto.item.request.ItemCreateRequestDto;
+import com.example.market.dto.item.request.ItemDeleteRequestDto;
+import com.example.market.dto.item.request.ItemUpdateRequestDto;
+import com.example.market.dto.item.response.ItemListResponseDto;
+import com.example.market.dto.item.response.ItemOneResponseDto;
 import com.example.market.repository.ItemRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,13 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ItemServiceTest {

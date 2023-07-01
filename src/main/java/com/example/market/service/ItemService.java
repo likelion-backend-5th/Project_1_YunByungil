@@ -1,7 +1,11 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.*;
+import com.example.market.dto.item.request.ItemCreateRequestDto;
+import com.example.market.dto.item.request.ItemDeleteRequestDto;
+import com.example.market.dto.item.request.ItemUpdateRequestDto;
+import com.example.market.dto.item.response.ItemListResponseDto;
+import com.example.market.dto.item.response.ItemOneResponseDto;
 import com.example.market.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +22,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
