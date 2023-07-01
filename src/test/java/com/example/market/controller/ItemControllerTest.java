@@ -14,8 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,8 +28,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -130,5 +132,74 @@ class ItemControllerTest {
 
     }
 
+    @DisplayName("아이템 페이징 조회 API")
+    @Test
+    void readItemList() throws Exception {
+        // given
+        for (int i = 0; i < 1; i++) {
+            itemRepository.save(Item.builder()
+                    .title("제목" + i)
+                    .description("내용" + i)
+                    .minPriceWanted(i)
+                    .writer("작성자" + i)
+                    .password("비밀번호" + i)
+                    .build());
+        }
+
+        Integer page = 0;
+        Integer limit = 5;
+        String url = "https://localhost:8080/items";
+
+        // when
+        mvc.perform(get(url)
+                        .param("page", "0")
+                        .param("limit", "10")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.[0].title").value("제목" + 0))
+//                .andExpect(jsonPath("$[0].description").value("내용" + 0))
+                .andDo(document("/item-get-all",
+                        queryParameters(
+                                parameterWithName("page").description("현재 페이지"),
+                                parameterWithName("limit").description("한 페이지당 조회할 데이터 개수 (default = 20)")
+                        ),
+                        responseFields(
+                                fieldWithPath("content.[].id").description("ID"),
+                                fieldWithPath("content.[].title").description("제목"),
+                                fieldWithPath("content.[].description").description("내용"),
+                                fieldWithPath("content.[].minPriceWanted").description("최소가격"),
+                                fieldWithPath("content.[].imageUrl").description("이미지"),
+                                fieldWithPath("content.[].status").description("판매여부"),
+
+                                fieldWithPath("pageable.sort.sorted").description("정렬 여부"),
+                                fieldWithPath("pageable.sort.empty").description("데이터가 비었는지 여부"),
+                                fieldWithPath("pageable.sort.unsorted").description("정렬 안 됐는지 여부"),
+
+                                fieldWithPath("pageable.offset").description("몇 번째 데이터인지 (0부터 시작)"),
+                                fieldWithPath("pageable.pageNumber").description("현재 페이지 번호"),
+                                fieldWithPath("pageable.pageSize").description("한 페이지당 조회할 데이터 개수"),
+                                fieldWithPath("pageable.paged").description("페이징 정보를 포함하는지 여부"),
+                                fieldWithPath("pageable.unpaged").description("페이징 정보를 안 포함하는지 여부"),
+
+                                fieldWithPath("last").description("마지막 페이지인지 여부"),
+                                fieldWithPath("totalPages").description("전체 페이지 개수"),
+                                fieldWithPath("totalElements").description("테이블 총 데이터 개수"),
+                                fieldWithPath("first").description("첫번째 페이지인지 여부"),
+                                fieldWithPath("numberOfElements").description("요청 페이지에서 조회 된 데이터 개수"),
+                                fieldWithPath("number").description("현재 페이지 번호"),
+                                fieldWithPath("size").description("한 페이지당 조회할 데이터 개수"),
+
+                                fieldWithPath("sort.sorted").description("정렬 됐는지 여부"),
+                                fieldWithPath("sort.unsorted").description("정렬 안 됐는지 여부"),
+                                fieldWithPath("sort.empty").description("데이터가 비었는지 여부"),
+
+                                fieldWithPath("empty").description("데이터가 비었는지 여부")
+                        )
+                ));
+
+
+        // then
+
+    }
 
 }
