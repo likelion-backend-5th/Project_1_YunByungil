@@ -1,15 +1,17 @@
 package com.example.market.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Getter
 public class ItemDeleteRequestDto {
 
     private String writer;
     private String password;
+
+    @Builder
+    public ItemDeleteRequestDto(String writer, String password) {
+        this.writer = writer;
+        this.password = password;
+    }
 }

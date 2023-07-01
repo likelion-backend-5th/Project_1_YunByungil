@@ -1,10 +1,7 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
-import com.example.market.dto.ItemCreateRequestDto;
-import com.example.market.dto.ItemListResponseDto;
-import com.example.market.dto.ItemOneResponseDto;
-import com.example.market.dto.ItemUpdateRequestDto;
+import com.example.market.dto.*;
 import com.example.market.repository.ItemRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -179,6 +176,33 @@ class ItemServiceTest {
         assertThatThrownBy(() -> {
             itemService.updateItem(savedItem.getId(), notSamePasswordUpdateDto);
         }).isInstanceOf(ResponseStatusException.class);
+    }
+
+    @DisplayName("아이템 삭제 기능 테스트")
+    @Test
+    void deleteItem() {
+        // given
+        ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
+                .title("새로운 제목")
+                .writer("새로운 작성자")
+                .minPriceWanted(10_000)
+                .description("새로운 내용")
+                .password("새로운 비밀번호")
+                .build();
+
+        Item savedItem = itemRepository.save(dto.toEntity());
+
+        ItemDeleteRequestDto deleteDto = ItemDeleteRequestDto.builder()
+                .writer("새로운 작성자")
+                .password("새로운 비밀번호")
+                .build();
+
+        // when
+        itemService.deleteItem(savedItem.getId(), deleteDto);
+
+        // then
+        List<Item> all = itemRepository.findAll();
+        assertThat(all.size()).isEqualTo(0);
     }
 
     private void createItems() {
