@@ -103,4 +103,24 @@ include::{snippets}/items-delete/path-parameters.adoc[]
 
 include::{snippets}/items-delete/http-response.adoc[]
 
+[[resources-comment]]
+== Comment
 
+[[resources-comment]]
+=== Comment 등록
+
+==== HTTP request
+
+include::{snippets}/comments/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/comments/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/comments/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/comments/http-response.adoc[]
