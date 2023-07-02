@@ -1,11 +1,17 @@
 package com.example.market.service;
 
+import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,4 +33,15 @@ public class CommentService {
 
         commentRepository.save(dto.toEntity(itemId));
     }
+
+    public Page<CommentListResponseDto> readCommentList(Long itemId, int page, int limit) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
+
+        Page<Comment> findCommentByAllItemId = commentRepository.findAllByItemId(itemId, pageable);
+
+        Page<CommentListResponseDto> commentListResponseDto = findCommentByAllItemId.map(CommentListResponseDto::new);
+
+        return commentListResponseDto;
+    }
+
 }
