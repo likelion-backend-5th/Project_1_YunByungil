@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.comment.request.CommentDeleteRequestDto;
+import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
@@ -273,6 +274,60 @@ class CommentServiceTest {
 
         assertThatThrownBy(() -> {
             commentService.deleteComment(itemId, commentId, dontMatchPassword);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+
+    }
+
+    @DisplayName("댓글에 답변 달기 기능 테스트")
+    @Test
+    void updateCommentReply() {
+        // given
+        Long itemId = createItem();
+        Long commentId = createComment(itemId);
+
+        CommentReplyRequestDto replyDto = CommentReplyRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .reply("답변작성완료")
+                .build();
+
+        // when
+        commentService.updateCommentReply(itemId, commentId, replyDto);
+
+        // then
+        Comment findComment = commentRepository.findById(commentId).get();
+        assertThat(findComment.getReply()).isEqualTo(replyDto.getReply());
+
+    }
+
+    @DisplayName("답변 기능 예외 테스트 - 작성자 or 비밀번호 다를 때")
+    @Test
+    void checkWriterAndPasswordForReply() {
+        // given
+        Long itemId = createItem();
+        Long commentId = createComment(itemId);
+
+        CommentReplyRequestDto dontMatchWriter = CommentReplyRequestDto.builder()
+                .writer("다른 아이디")
+                .password("비밀번호")
+                .reply("답변수정완료")
+                .build();
+
+        CommentReplyRequestDto dontMatchPassword = CommentReplyRequestDto.builder()
+                .writer("작성자")
+                .password("다른 비밀번호")
+                .reply("답변수정완료")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            commentService.updateCommentReply(itemId, commentId, dontMatchWriter);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        assertThatThrownBy(() -> {
+            commentService.updateCommentReply(itemId, commentId, dontMatchPassword);
         }).isInstanceOf(ResponseStatusException.class);
 
         // then
