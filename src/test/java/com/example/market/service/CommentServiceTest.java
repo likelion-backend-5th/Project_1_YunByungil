@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
@@ -150,7 +151,7 @@ class CommentServiceTest {
 
     @DisplayName("댓글 수정할 때 itemId 값과 comment.getItemId 값이 다를 때 예외 발생")
     @Test
-    void validateItemIdMatch() {
+    void validateItemIdMatchForUpdate() {
         // given
         Long itemId = createItem();
 
@@ -172,7 +173,7 @@ class CommentServiceTest {
 
     @DisplayName("댓글 수정할 때 Writer Or Password 다를 때 예외 발생")
     @Test
-    void checkWriterAndPassword() {
+    void checkWriterAndPasswordForUpdate() {
         // given
         Long itemId = createItem();
 
@@ -201,6 +202,80 @@ class CommentServiceTest {
 
         // then
 
+
+    }
+
+    @DisplayName("댓글 삭제 기능 테스트")
+    @Test
+    void deleteComment() {
+        // given
+        Long itemId = createItem();
+        Long commentId = createComment(itemId);
+
+        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .build();
+
+        // when
+        commentService.deleteComment(itemId, commentId, deleteDto);
+
+        // then
+        List<Comment> all = commentRepository.findAll();
+        assertThat(all.size()).isEqualTo(0);
+
+    }
+
+    @DisplayName("댓글 삭제할 때 itemId 값과 comment.getItemId 값이 다를 때 예외 발생")
+    @Test
+    void validateItemIdMatchForDelete() {
+        // given
+        Long itemId = createItem();
+        Long notSameItemId = itemId + 121;
+
+        Long commentId = createComment(itemId);
+
+        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            commentService.deleteComment(notSameItemId, commentId, deleteDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+    }
+
+    @DisplayName("댓글 수정할 때 Writer Or Password 다를 때 예외 발생")
+    @Test
+    void checkWriterAndPasswordForDelete() {
+        // given
+        Long itemId = createItem();
+
+        Long commentId = createComment(itemId);
+
+        CommentDeleteRequestDto dontMatchWriter = CommentDeleteRequestDto.builder()
+                .writer("기존 작성자랑 값이 다름")
+                .password("비밀번호")
+                .build();
+
+        CommentDeleteRequestDto dontMatchPassword = CommentDeleteRequestDto.builder()
+                .writer("작성자")
+                .password("기존 비밀번호랑 값이 다름")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            commentService.deleteComment(itemId, commentId, dontMatchWriter);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        assertThatThrownBy(() -> {
+            commentService.deleteComment(itemId, commentId, dontMatchPassword);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
 
     }
 

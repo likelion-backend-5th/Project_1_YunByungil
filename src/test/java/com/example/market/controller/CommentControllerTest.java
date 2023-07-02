@@ -3,6 +3,7 @@ package com.example.market.controller;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -24,8 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -121,6 +121,39 @@ class CommentControllerTest {
                                 fieldWithPath("writer").description("댓글 작성자"),
                                 fieldWithPath("password").description("댓글 작성자 비밀번호"),
                                 fieldWithPath("content").description("수정 내용")
+                        ),
+                        pathParameters(
+                                parameterWithName("itemId").description("아이템 ID"),
+                                parameterWithName("commentId").description("댓글 ID")
+                        )));
+
+        // then
+
+    }
+
+    @DisplayName("댓글 삭제 API 테스트")
+    @Test
+    void deleteComment() throws Exception {
+        // given
+        Long itemId = createItem();
+        Long commentId = createComment(itemId);
+
+        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .build();
+
+        String url = "http://localhost:8080/items/{itemId}/comments/{commentId}";
+
+        // when
+        mvc.perform(delete(url, itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(deleteDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/comments-delete",
+                        requestFields(
+                                fieldWithPath("writer").description("작성자"),
+                                fieldWithPath("password").description("비밀번호")
                         ),
                         pathParameters(
                                 parameterWithName("itemId").description("아이템 ID"),
