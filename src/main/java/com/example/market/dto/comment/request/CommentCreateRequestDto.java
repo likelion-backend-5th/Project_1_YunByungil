@@ -23,7 +23,7 @@ public class CommentCreateRequestDto {
 
     public Comment toEntity(Long itemId) {
         return Comment.builder()
-                .item_id(itemId)
+                .itemId(itemId)
                 .writer(writer)
                 .password(password)
                 .content(content)
