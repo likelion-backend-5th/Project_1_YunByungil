@@ -23,7 +23,7 @@ class CommentRepositoryTest {
     void createAndFindTest() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .item_id(1L)
+                .itemId(1L)
                 .writer("작성자")
                 .password("비밀번호")
                 .content("댓글내용")
