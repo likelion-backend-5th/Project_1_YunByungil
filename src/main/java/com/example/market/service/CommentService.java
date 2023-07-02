@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
@@ -54,17 +55,17 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         validateItemIdMatch(item, comment);
-        checkWriterAndPassword(dto, comment);
+        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), comment);
 
         comment.update(dto);
     }
 
-    private void checkWriterAndPassword(CommentUpdateRequestDto dto, Comment comment) {
-        if (!comment.getWriter().equals(dto.getWriter())) {
+    private void checkWriterAndPassword(String writer, String password, Comment comment) {
+        if (!comment.getWriter().equals(writer)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if (!comment.getPassword().equals(dto.getPassword())) {
+        if (!comment.getPassword().equals(password)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
