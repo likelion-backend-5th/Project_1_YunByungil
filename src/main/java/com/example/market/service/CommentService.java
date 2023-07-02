@@ -60,6 +60,20 @@ public class CommentService {
         comment.update(dto);
     }
 
+    @Transactional
+    public void deleteComment(Long itemId, Long commentId, CommentDeleteRequestDto dto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        validateItemIdMatch(item, comment);
+        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), comment);
+
+        commentRepository.delete(comment);
+    }
+
     private void checkWriterAndPassword(String writer, String password, Comment comment) {
         if (!comment.getWriter().equals(writer)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
