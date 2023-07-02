@@ -1,6 +1,7 @@
 package com.example.market.controller;
 
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.dto.comment.response.CommentResponseDto;
 import com.example.market.service.CommentService;
@@ -30,5 +31,14 @@ public class CommentController {
                                                         @RequestParam(value = "limit", defaultValue = "20") Integer limit) {
         Page<CommentListResponseDto> commentListResponseDto = commentService.readCommentList(itemId, page, limit);
         return commentListResponseDto;
+    }
+
+    @PutMapping("/items/{itemId}/comments/{commentId}")
+    public CommentResponseDto updateComment(@PathVariable Long itemId,
+                                            @PathVariable Long commentId,
+                                            @RequestBody CommentUpdateRequestDto dto) {
+        commentService.updateComment(itemId, commentId, dto);
+
+        return new CommentResponseDto("댓글이 수정되었습니다.");
     }
 }

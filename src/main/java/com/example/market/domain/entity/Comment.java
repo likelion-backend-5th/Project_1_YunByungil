@@ -1,5 +1,6 @@
 package com.example.market.domain.entity;
 
+import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,5 +31,11 @@ public class Comment {
         this.password = password;
         this.content = content;
         this.reply = reply;
+    }
+
+    public void update(CommentUpdateRequestDto dto) {
+        this.writer = dto.getWriter();
+        this.password = dto.getPassword();
+        this.content = dto.getContent();
     }
 }

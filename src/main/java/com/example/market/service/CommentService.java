@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -42,6 +43,36 @@ public class CommentService {
         Page<CommentListResponseDto> commentListResponseDto = findCommentByAllItemId.map(CommentListResponseDto::new);
 
         return commentListResponseDto;
+    }
+
+    @Transactional
+    public void updateComment(Long itemId, Long commentId, CommentUpdateRequestDto dto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        validateItemIdMatch(item, comment);
+        checkWriterAndPassword(dto, comment);
+
+        comment.update(dto);
+    }
+
+    private void checkWriterAndPassword(CommentUpdateRequestDto dto, Comment comment) {
+        if (!comment.getWriter().equals(dto.getWriter())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (!comment.getPassword().equals(dto.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateItemIdMatch(Item item, Comment comment) {
+        if (item.getId() != comment.getItemId()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
