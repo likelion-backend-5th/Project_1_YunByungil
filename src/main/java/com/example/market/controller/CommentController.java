@@ -2,6 +2,7 @@ package com.example.market.controller;
 
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.comment.request.CommentDeleteRequestDto;
+import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.dto.comment.response.CommentResponseDto;
@@ -50,5 +51,15 @@ public class CommentController {
         commentService.deleteComment(itemId, commentId, dto);
 
         return new CommentResponseDto("댓글을 삭제했습니다.");
+    }
+
+
+    @PutMapping("/items/{itemId}/comments/{commentId}/reply")
+    public CommentResponseDto updateCommentReply(@PathVariable Long itemId,
+                                                 @PathVariable Long commentId,
+                                                 @RequestBody CommentReplyRequestDto replyDto) {
+        commentService.updateCommentReply(itemId, commentId, replyDto);
+
+        return new CommentResponseDto("댓글에 답변이 추가되었습니다.");
     }
 }

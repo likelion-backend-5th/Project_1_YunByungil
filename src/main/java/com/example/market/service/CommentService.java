@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.comment.request.CommentDeleteRequestDto;
+import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
@@ -73,6 +74,31 @@ public class CommentService {
 
         commentRepository.delete(comment);
     }
+
+    @Transactional
+    public void updateCommentReply(Long itemId, Long commentId, CommentReplyRequestDto replyDto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        validateItemIdMatch(item, comment);
+        checkWriterAndPasswordForReply(replyDto, item);
+
+        comment.updateCommentReply(replyDto);
+    }
+
+    private void checkWriterAndPasswordForReply(CommentReplyRequestDto replyDto, Item item) {
+        if (!item.getWriter().equals(replyDto.getWriter())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if (!item.getPassword().equals(replyDto.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     private void checkWriterAndPassword(String writer, String password, Comment comment) {
         if (!comment.getWriter().equals(writer)) {

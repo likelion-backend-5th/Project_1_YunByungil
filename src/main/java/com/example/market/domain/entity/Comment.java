@@ -1,5 +1,6 @@
 package com.example.market.domain.entity;
 
+import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,9 +34,14 @@ public class Comment {
         this.reply = reply;
     }
 
+    // TODO: 굳이 writer, password 값도 수정 해야 되나?
     public void update(CommentUpdateRequestDto dto) {
         this.writer = dto.getWriter();
         this.password = dto.getPassword();
         this.content = dto.getContent();
+    }
+
+    public void updateCommentReply(CommentReplyRequestDto dto) {
+        this.reply = dto.getReply();
     }
 }
