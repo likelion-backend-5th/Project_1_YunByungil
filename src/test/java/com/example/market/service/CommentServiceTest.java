@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -120,6 +121,99 @@ class CommentServiceTest {
         // then
         assertThat(commentListResponseDto.getTotalElements()).isEqualTo(0L);
 
+    }
+
+    @DisplayName("댓글 수정 테스트")
+    @Test
+    void updateComment() {
+        // given
+        Long itemId = createItem();
+
+        Long commentId = createComment(itemId);
+
+        CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .content("수정완료")
+                .build();
+
+
+        // when
+        commentService.updateComment(itemId, commentId, dto);
+
+        // then
+        Comment comment = commentRepository.findById(commentId).get();
+
+        assertThat(comment.getContent()).isEqualTo(dto.getContent());
+
+    }
+
+    @DisplayName("댓글 수정할 때 itemId 값과 comment.getItemId 값이 다를 때 예외 발생")
+    @Test
+    void validateItemIdMatch() {
+        // given
+        Long itemId = createItem();
+
+        Long commentId = createComment(itemId);
+
+        CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .content("수정완료")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            commentService.updateComment(itemId + 120, commentId, dto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+    }
+
+    @DisplayName("댓글 수정할 때 Writer Or Password 다를 때 예외 발생")
+    @Test
+    void checkWriterAndPassword() {
+        // given
+        Long itemId = createItem();
+
+        Long commentId = createComment(itemId);
+
+        CommentUpdateRequestDto dontMatchWriter = CommentUpdateRequestDto.builder()
+                .writer("기존 작성자랑 값이 다름")
+                .password("비밀번호")
+                .content("수정완료")
+                .build();
+
+        CommentUpdateRequestDto dontMatchPassword = CommentUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("기존 비밀번호랑 값이 다름")
+                .content("수정완료")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> { // 1. 작성자가 다른 경우
+            commentService.updateComment(itemId, commentId, dontMatchWriter);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        assertThatThrownBy(() -> { // 2. 패스워드가 다른 경우
+            commentService.updateComment(itemId, commentId, dontMatchPassword);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+
+
+    }
+
+    private Long createComment(Long itemId) {
+        CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .content("내용")
+                .build();
+
+        Comment comment = commentRepository.save(dto.toEntity(itemId));
+
+        return comment.getId();
     }
 
     private Long createItem() {
