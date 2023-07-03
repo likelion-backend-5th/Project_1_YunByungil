@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.comment.request.CommentDeleteRequestDto;
+import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -158,6 +159,41 @@ class CommentControllerTest {
                         pathParameters(
                                 parameterWithName("itemId").description("아이템 ID"),
                                 parameterWithName("commentId").description("댓글 ID")
+                        )));
+
+        // then
+
+    }
+
+    @DisplayName("댓글 답글(reply) 수정 API")
+    @Test
+    void updateCommentReply() throws Exception {
+        // given
+        Long itemId = createItem();
+        Long commentId = createComment(itemId);
+
+        CommentReplyRequestDto replyDto = CommentReplyRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .reply("답글내용")
+                .build();
+
+        String url = "http://localhost:8080/items/{itemId}/comments/{commentId}/reply";
+
+        // when
+        mvc.perform(put(url, itemId, commentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(replyDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/comments-reply",
+                        requestFields(
+                                fieldWithPath("writer").description("아이템 글 작성자"),
+                                fieldWithPath("password").description("아이템 글 비밀번호"),
+                                fieldWithPath("reply").description("답글내용")
+                        ),
+                        pathParameters(
+                                parameterWithName("itemId").description("아이템 글 번호"),
+                                parameterWithName("commentId").description("댓글 번호")
                         )));
 
         // then
