@@ -73,4 +73,44 @@ class NegotiationRepositoryTest {
         assertThat(findNegotiationByAllItemId.getSize()).isEqualTo(5);
 
     }
+
+    @DisplayName("findAllByItemIdAndWriterAndPassword() 메서드 테스트")
+    @Test
+    void findAllByItemAndWriterAndPassword() {
+        // given
+        final Long itemId = 1L;
+        final int page = 0;
+        final int limit = 5;
+        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                .suggestedPrice(10_000)
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .build();
+
+        Negotiation negotiation = null;
+        for (int i = 0; i < 5; i++) {
+            negotiation = repository.save(createDto.toEntity(itemId));
+        }
+
+        NegotiationCreateRequestDto createDto2 = NegotiationCreateRequestDto.builder()
+                .suggestedPrice(10_000)
+                .writer("제안 작성자2")
+                .password("제안 비밀번호2")
+                .build();
+
+        Negotiation negotiation2 = null;
+        for (int i = 0; i < 5; i++) {
+            negotiation2 = repository.save(createDto2.toEntity(itemId));
+        }
+
+        Pageable pageable = PageRequest.of(page, limit);
+
+        // when
+        Page<Negotiation> allByItemIdAndWriterAndPassword =
+                repository.findAllByItemIdAndWriterAndPassword(itemId, negotiation.getWriter(), negotiation.getPassword(), pageable);
+
+        // then
+        assertThat(allByItemIdAndWriterAndPassword.getTotalElements()).isEqualTo(5);
+
+    }
 }
