@@ -85,6 +85,32 @@ class NegotiationServiceTest {
         assertThat(negotiationListResponseDto.hasNext()).isTrue();
 
     }
+    
+    @DisplayName("등록된 제안 제안자 기준 조회 메서드")
+    @Test
+    void readAllProposalsByNegotiator() {
+        // given
+        Item item = createItem();
+        createSixNegotiation(item.getId());
+        createSixNegotiation2(item.getId());
+
+        int page = 0;
+        int limit = 5;
+
+        NegotiationListRequestDto listDto = NegotiationListRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .build();
+
+        // when
+        Page<NegotiationListResponseDto> negotiationListResponseDto = negotiationService.readAllNegotiation(item.getId(), page, limit, listDto);
+
+        // then
+        assertThat(negotiationListResponseDto.getSize()).isEqualTo(5);
+        assertThat(negotiationListResponseDto.getTotalElements()).isEqualTo(6);
+        assertThat(negotiationListResponseDto.hasNext()).isTrue();
+        
+    }
 
     private Item createItem() {
         return itemRepository.save(Item.builder()
@@ -100,6 +126,17 @@ class NegotiationServiceTest {
         NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
                 .writer("제안 작성자")
                 .password("제안 비밀번호")
+                .suggestedPrice(5_000)
+                .build();
+
+        for (int i = 0; i < 6; i++) {
+            negotiationService.createNegotiation(itemId, createDto);
+        }
+    }
+    private void createSixNegotiation2(Long itemId) {
+        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                .writer("제안 작성자2")
+                .password("제안 비밀번호2")
                 .suggestedPrice(5_000)
                 .build();
 
