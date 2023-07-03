@@ -62,9 +62,9 @@ class NegotiationServiceTest {
 
     }
 
-    @DisplayName("등록된 제안 단순 확인 조회 메서드 테스트")
+    @DisplayName("등록된 제안 판매자 기준 조회 메서드 테스트")
     @Test
-    void readAllProposals() {
+    void readAllProposalsBySeller() {
         // given
         Item item = createItem();
         createSixNegotiation(item.getId());
@@ -98,8 +98,8 @@ class NegotiationServiceTest {
 
     private void createSixNegotiation(Long itemId) {
         NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
                 .suggestedPrice(5_000)
                 .build();
 
