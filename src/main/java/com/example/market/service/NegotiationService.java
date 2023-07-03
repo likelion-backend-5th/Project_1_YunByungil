@@ -40,15 +40,23 @@ public class NegotiationService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
+
+
         if (item.getWriter().equals(listDto.getWriter()) && item.getPassword().equals(listDto.getPassword())) {
-            Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
             Page<Negotiation> allByItemId = negotiationRepository.findAllByItemId(itemId, pageable);
 
             Page<NegotiationListResponseDto> listResponseDto = allByItemId.map(NegotiationListResponseDto::new);
 
             return listResponseDto;
-        } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
+
+        Page<Negotiation> allByItemIdAndWriterAndPassword =
+                negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
+
+        Page<NegotiationListResponseDto> negotiationListResponseDto = allByItemIdAndWriterAndPassword.map(NegotiationListResponseDto::new);
+
+        return negotiationListResponseDto;
+
     }
 }
