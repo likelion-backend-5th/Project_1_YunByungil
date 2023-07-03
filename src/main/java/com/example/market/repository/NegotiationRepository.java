@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface NegotiationRepository extends JpaRepository<Negotiation, Long> {
 
     Page<Negotiation> findAllByItemId(Long itemId, Pageable pageable);
+
+    Page<Negotiation> findAllByItemIdAndWriterAndPassword(Long itemId, String writer, String password, Pageable pageable);
 }
