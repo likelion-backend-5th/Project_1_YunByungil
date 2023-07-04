@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
@@ -63,6 +64,21 @@ public class NegotiationService {
         }
 
         negotiation.updateNegotiation(updateDto.getSuggestedPrice());
+    }
+
+    @Transactional
+    public void deleteNegotiation(Long itemId, Long negotiationId, NegotiationDeleteRequestDto deleteDto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Negotiation negotiation = negotiationRepository.findById(negotiationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!isBuyer(deleteDto.getWriter(), deleteDto.getPassword(), negotiation)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        negotiationRepository.delete(negotiation);
     }
 
     private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {

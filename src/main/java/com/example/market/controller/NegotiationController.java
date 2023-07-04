@@ -1,6 +1,7 @@
 package com.example.market.controller;
 
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
@@ -28,9 +29,9 @@ public class NegotiationController {
 
     @GetMapping("/items/{itemId}/proposals")
     public Page<NegotiationListResponseDto> readAllNegotiation(@PathVariable Long itemId,
-                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                        @RequestParam(value = "limit", defaultValue = "20") int limit,
-                                                                        @RequestBody NegotiationListRequestDto listDto) {
+                                                               @RequestParam(value = "page", defaultValue = "0") int page,
+                                                               @RequestParam(value = "limit", defaultValue = "20") int limit,
+                                                               @RequestBody NegotiationListRequestDto listDto) {
         return negotiationService.readAllNegotiation(itemId, page, limit, listDto);
     }
 
@@ -41,5 +42,14 @@ public class NegotiationController {
         negotiationService.updateNegotiation(itemId, proposalId, updateDto);
 
         return new NegotiationResponseDto("제안이 수정되었습니다.");
+    }
+
+    @DeleteMapping("/items/{itemId}/proposals/{proposalId}")
+    public NegotiationResponseDto deleteNegotiation(@PathVariable Long itemId,
+                                                    @PathVariable Long proposalId,
+                                                    @RequestBody NegotiationDeleteRequestDto deleteDto) {
+        negotiationService.deleteNegotiation(itemId, proposalId, deleteDto);
+
+        return new NegotiationResponseDto("제안을 삭제했습니다.");
     }
 }
