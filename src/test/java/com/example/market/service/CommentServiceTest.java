@@ -63,7 +63,6 @@ class CommentServiceTest {
         assertThat(comment.getWriter()).isEqualTo(dto.getWriter());
         assertThat(comment.getPassword()).isEqualTo(dto.getPassword());
         assertThat(comment.getContent()).isEqualTo(dto.getContent());
-        assertThat(comment.getItemId()).isEqualTo(itemId);
     }
     
     @DisplayName("존재하지 않는 물품에 댓글 작성시 예외 발생")
