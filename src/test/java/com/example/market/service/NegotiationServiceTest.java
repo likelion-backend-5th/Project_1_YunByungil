@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -164,6 +167,61 @@ class NegotiationServiceTest {
         // then
     }
 
+    @DisplayName("등록된 제안 삭제 기능 테스트")
+    @Test
+    void deleteNegotiation() {
+        // given
+        final int price = 10_000;
+        final String writer = "제안 작성자";
+        final String password = "제안 작성자";
+
+        Item item = createItem();
+
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationDeleteRequestDto deleteDto = NegotiationDeleteRequestDto.builder()
+                .writer(writer)
+                .password(password)
+                .build();
+
+        // when
+        negotiationService.deleteNegotiation(item.getId(), negotiation.getId(), deleteDto);
+
+        // then
+        List<Negotiation> all = negotiationRepository.findAll();
+
+        assertThat(all.size()).isEqualTo(0);
+
+    }
+
+    @DisplayName("등록된 제안 계정 정보 틀렸을 때 예외 발생")
+    @Test
+    void deleteNegotiationException() {
+        // given
+        final int price = 10_000;
+        final String writer = "제안 작성자";
+        final String password = "제안 작성자";
+
+        Item item = createItem();
+
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+        final String otherWriter = "다른 작성자";
+        final String otherPassword = "다른 비밀번호";
+
+        NegotiationDeleteRequestDto deleteDto = NegotiationDeleteRequestDto.builder()
+                .writer(otherWriter)
+                .password(otherPassword)
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            negotiationService.deleteNegotiation(item.getId(), negotiation.getId(), deleteDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+
+    }
+
     private Item createItem() {
         return itemRepository.save(Item.builder()
                 .title("제목")
@@ -176,8 +234,8 @@ class NegotiationServiceTest {
 
     private Negotiation createNegotiationOne(Item item, String writer, String password, int price) {
         NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
-                .writer("제안 수정 작성자")
-                .password("제안 수정 비밀번호")
+                .writer(writer)
+                .password(password)
                 .suggestedPrice(5_000)
                 .build();
         Negotiation negotiation = createDto.toEntity(item.getId());
