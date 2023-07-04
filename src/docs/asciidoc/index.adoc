@@ -125,6 +125,26 @@ include::{snippets}/comments/path-parameters.adoc[]
 
 include::{snippets}/comments/http-response.adoc[]
 
+[[resources-comment-get-all]]
+=== Comment 조회
+
+
+==== HTTP request
+
+include::{snippets}/comments-get-all/http-request.adoc[]
+
+==== Query Parameters
+
+include::{snippets}/comments-get-all/query-parameters.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/comments-get-all/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/comments-get-all/http-response.adoc[]
+
 [[resources-comment-update]]
 === Comment 수정
 
@@ -205,6 +225,54 @@ include::{snippets}/proposals/path-parameters.adoc[]
 
 include::{snippets}/proposals/http-response.adoc[]
 
+[[resources-negotiation-get-all-buyer]]
+
+=== Negotiation 제안자 기준 조회
+
+==== HTTP request
+
+include::{snippets}/proposals-get-all-buyer/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-get-all-buyer/request-fields.adoc[]
+
+==== Query Parameters
+
+include::{snippets}/proposals-get-all-buyer/query-parameters.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-get-all-buyer/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-get-all-buyer/http-response.adoc[]
+
+[[resources-negotiation-get-all-seller]]
+
+=== Negotiation 판매자 기준 조회
+
+==== HTTP request
+
+include::{snippets}/proposals-get-all-seller/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-get-all-seller/request-fields.adoc[]
+
+==== Query Parameters
+
+include::{snippets}/proposals-get-all-seller/query-parameters.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-get-all-seller/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-get-all-seller/http-response.adoc[]
+
 [[resources-negotiation-update]]
 
 === Negotiation 가격 수정
@@ -284,5 +352,7 @@ include::{snippets}/proposals-purchaseConfirm/path-parameters.adoc[]
 ==== HTTP response
 
 include::{snippets}/proposals-purchaseConfirm/http-response.adoc[]
+
+
 
 
