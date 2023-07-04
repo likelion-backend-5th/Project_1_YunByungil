@@ -39,9 +39,8 @@ public class NegotiationController {
     public NegotiationResponseDto updateNegotiation(@PathVariable Long itemId,
                                                     @PathVariable Long proposalId,
                                                     @RequestBody NegotiationUpdateRequestDto updateDto) {
-        negotiationService.updateNegotiation(itemId, proposalId, updateDto);
+        return negotiationService.updateNegotiation(itemId, proposalId, updateDto);
 
-        return new NegotiationResponseDto("제안이 수정되었습니다.");
     }
 
     @DeleteMapping("/items/{itemId}/proposals/{proposalId}")

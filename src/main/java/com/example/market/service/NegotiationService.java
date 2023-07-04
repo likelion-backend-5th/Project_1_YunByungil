@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
+import com.example.market.dto.negotiation.response.NegotiationResponseDto;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,7 @@ public class NegotiationService {
     }
 
     @Transactional
-    public void updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto) {
+    public NegotiationResponseDto updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -58,12 +59,12 @@ public class NegotiationService {
 
         if (isSeller(updateDto.getWriter(), updateDto.getPassword(), item)) {
             negotiation.updateNegotiationStatus(updateDto.getStatus());
-            return;
+            return new NegotiationResponseDto("제안의 상태가 변경되었습니다.");
         }
 
         if (isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
             negotiation.updateNegotiation(updateDto.getSuggestedPrice());
-            return;
+            return new NegotiationResponseDto("제안이 수정되었습니다.");
         }
 
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
