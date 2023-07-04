@@ -23,6 +23,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -30,8 +32,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith({RestDocumentationExtension.class})
@@ -198,6 +199,42 @@ class CommentControllerTest {
 
         // then
 
+    }
+    
+    @DisplayName("댓글 페이징 조회 API")
+    @Test
+    void readAllComment() throws Exception {
+        // given
+        Long itemId = createItem();
+        for (int i = 0; i < 6; i++) {
+            CommentCreateRequestDto createDto = CommentCreateRequestDto.builder()
+                    .writer("작성자" + i)
+                    .password("비밀번호" + i)
+                    .content("내용" + i)
+                    .build();
+            
+            commentService.create(itemId, createDto);
+        }
+
+        String url = "http://localhost:8080/items/{itemId}/comments";
+        // when
+        mvc.perform(get(url, itemId)
+                .param("page", "0")
+                .param("limit", "6")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(document("/comments-get-all",
+                        pathParameters(
+                                parameterWithName("itemId").description("아이템 ID")
+                        ),
+                        queryParameters(
+                                parameterWithName("page").description("현재 페이지"),
+                                parameterWithName("limit").description("한 페이지당 조회할 데이터 개수")
+                        )));
+
+
+        // then
+        
     }
 
     private Long createComment(Long itemId) {
