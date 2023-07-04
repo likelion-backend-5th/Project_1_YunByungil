@@ -42,21 +42,37 @@ public class NegotiationService {
 
         Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
 
-
-        if (item.getWriter().equals(listDto.getWriter()) && item.getPassword().equals(listDto.getPassword())) {
-            Page<Negotiation> allByItemId = negotiationRepository.findAllByItemId(itemId, pageable);
-
-            Page<NegotiationListResponseDto> listResponseDto = allByItemId.map(NegotiationListResponseDto::new);
-
-            return listResponseDto;
+        if (isSeller(listDto.getWriter(), listDto.getPassword(), item)) {
+            return getNegotiationListResponseDtoBySeller(itemId, pageable);
         }
 
+        return getNegotiationListResponseDtoByBuyer(itemId, listDto, pageable);
+    }
+
+    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {
         Page<Negotiation> allByItemIdAndWriterAndPassword =
                 negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
 
         Page<NegotiationListResponseDto> negotiationListResponseDto = allByItemIdAndWriterAndPassword.map(NegotiationListResponseDto::new);
 
         return negotiationListResponseDto;
-
     }
+
+    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoBySeller(Long itemId, Pageable pageable) {
+        Page<Negotiation> allByItemId = negotiationRepository.findAllByItemId(itemId, pageable);
+
+        Page<NegotiationListResponseDto> listResponseDto = allByItemId.map(NegotiationListResponseDto::new);
+
+        return listResponseDto;
+    }
+
+    private boolean isSeller(String writer, String password, Item item) {
+        if (!item.getWriter().equals(writer) &&
+            !item.getPassword().equals(password)) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
