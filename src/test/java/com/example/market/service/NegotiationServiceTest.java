@@ -158,7 +158,6 @@ class NegotiationServiceTest {
                 .password("다른 비밀번호")
                 .suggestedPrice(updatePrice)
                 .build();
-
         // when
         assertThatThrownBy(() -> {
             negotiationService.updateNegotiation(item.getId(), negotiation.getId(), updateDto);
@@ -216,6 +215,58 @@ class NegotiationServiceTest {
         // when
         assertThatThrownBy(() -> {
             negotiationService.deleteNegotiation(item.getId(), negotiation.getId(), deleteDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+
+    }
+
+    @DisplayName("제안의 상태를 변경(제안 -> 수락)하는 메서드 테스트")
+    @Test
+    void updateNegotiationStatus() {
+        // given
+        Item item = createItem();
+        
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .status("수락")
+                .build();
+
+        // when
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
+        
+        // then
+        Negotiation findNegotiation = negotiationRepository.findAll().get(0);
+
+        assertThat(findNegotiation.getStatus()).isEqualTo("수락");
+
+    }
+    @DisplayName("제안의 상태를 변경할 때 계정 정보 다르면 예외 발생 테스트")
+    @Test
+    void updateNegotiationStatusException() {
+        // given
+        Item item = createItem();
+
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("다른 물품 작성자")
+                .password("다른 물품 비밀번호")
+                .status("수락")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
         }).isInstanceOf(ResponseStatusException.class);
 
         // then
