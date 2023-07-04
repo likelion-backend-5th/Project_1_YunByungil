@@ -17,7 +17,7 @@ public class NegotiationController {
 
     private final NegotiationService negotiationService;
 
-    @PostMapping("/items/{itemId}/proposal")
+    @PostMapping("/items/{itemId}/proposals")
     public NegotiationResponseDto createNegotiation(@PathVariable Long itemId,
                                                     @RequestBody NegotiationCreateRequestDto createDto) {
         negotiationService.createNegotiation(itemId, createDto);
