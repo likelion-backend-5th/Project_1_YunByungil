@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
@@ -49,6 +50,21 @@ public class NegotiationService {
         return getNegotiationListResponseDtoByBuyer(itemId, listDto, pageable);
     }
 
+    @Transactional
+    public void updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Negotiation negotiation = negotiationRepository.findById(negotiationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        negotiation.updateNegotiation(updateDto.getSuggestedPrice());
+    }
+
     private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {
         Page<Negotiation> allByItemIdAndWriterAndPassword =
                 negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
@@ -69,6 +85,15 @@ public class NegotiationService {
     private boolean isSeller(String writer, String password, Item item) {
         if (!item.getWriter().equals(writer) &&
             !item.getPassword().equals(password)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isBuyer(String writer, String password, Negotiation negotiation) {
+        if (!negotiation.getWriter().equals(writer) &&
+            !negotiation.getPassword().equals(password)) {
             return false;
         }
 

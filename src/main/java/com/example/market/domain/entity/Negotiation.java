@@ -32,4 +32,8 @@ public class Negotiation {
         this.writer = writer;
         this.password = password;
     }
+
+    public void updateNegotiation(int suggestedPrice) {
+        this.suggestedPrice = suggestedPrice;
+    }
 }
