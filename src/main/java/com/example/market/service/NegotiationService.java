@@ -2,10 +2,7 @@ package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
-import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
-import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
-import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
-import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
+import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
@@ -59,11 +56,17 @@ public class NegotiationService {
         Negotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (!isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        if (isSeller(updateDto.getWriter(), updateDto.getPassword(), item)) {
+            negotiation.updateNegotiationStatus(updateDto.getStatus());
+            return;
         }
 
-        negotiation.updateNegotiation(updateDto.getSuggestedPrice());
+        if (isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
+            negotiation.updateNegotiation(updateDto.getSuggestedPrice());
+            return;
+        }
+
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     @Transactional

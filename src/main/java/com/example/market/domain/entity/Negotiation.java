@@ -36,4 +36,8 @@ public class Negotiation {
     public void updateNegotiation(int suggestedPrice) {
         this.suggestedPrice = suggestedPrice;
     }
+
+    public void updateNegotiationStatus(String status) {
+        this.status = status;
+    }
 }
