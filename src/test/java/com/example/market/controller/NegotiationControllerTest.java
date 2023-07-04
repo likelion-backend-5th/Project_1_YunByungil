@@ -4,6 +4,7 @@ import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -25,6 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -32,8 +35,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith({RestDocumentationExtension.class})
@@ -247,6 +249,100 @@ class NegotiationControllerTest {
                                 parameterWithName("itemId").description("물품 ID"),
                                 parameterWithName("proposalId").description("제안 ID")
 
+                        )));
+
+        // then
+
+    }
+
+    @DisplayName("제안 작성자 기준 구매 제안 페이징 조회 API")
+    @Test
+    void readAllNegotiationByBuyer() throws Exception {
+        // given
+        Long itemId = createItem();
+
+        for (int i = 1; i <= 5; i++) {
+            NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                    .writer("제안 작성자")
+                    .password("제안 비밀번호")
+                    .suggestedPrice(10_000 * i)
+                    .build();
+
+            negotiationService.createNegotiation(itemId, createDto);
+        }
+
+        String url = "http://localhost:8080/items/{itemId}/proposals";
+
+        NegotiationListRequestDto listDto = NegotiationListRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .build();
+
+        // when
+        mvc.perform(get(url, itemId)
+                .param("page", "0")
+                .param("limit", "5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(listDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/proposals-get-all-buyer",
+                        pathParameters(
+                                parameterWithName("itemId").description("아이템 ID")
+                        ),
+                        queryParameters(
+                                parameterWithName("page").description("현재 페이지"),
+                                parameterWithName("limit").description("한 페이지당 조회할 데이터 개수")
+                        ),
+                        requestFields(
+                                fieldWithPath("writer").description("제안 작성자"),
+                                fieldWithPath("password").description("제안 비밀번호")
+                        )));
+
+        // then
+
+    }
+
+    @DisplayName("판매자 기준 구매 제안 페이징 조회 API")
+    @Test
+    void readAllNegotiationBySeller() throws Exception {
+        // given
+        Long itemId = createItem();
+
+        for (int i = 1; i <= 5; i++) {
+            NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                    .writer("제안 작성자" + i)
+                    .password("제안 비밀번호" + i)
+                    .suggestedPrice(10_000 * i)
+                    .build();
+
+            negotiationService.createNegotiation(itemId, createDto);
+        }
+
+        String url = "http://localhost:8080/items/{itemId}/proposals";
+
+        NegotiationListRequestDto listDto = NegotiationListRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .build();
+
+        // when
+        mvc.perform(get(url, itemId)
+                        .param("page", "0")
+                        .param("limit", "5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(listDto)))
+                .andExpect(status().isOk())
+                .andDo(document("/proposals-get-all-seller",
+                        pathParameters(
+                                parameterWithName("itemId").description("아이템 ID")
+                        ),
+                        queryParameters(
+                                parameterWithName("page").description("현재 페이지"),
+                                parameterWithName("limit").description("한 페이지당 조회할 데이터 개수")
+                        ),
+                        requestFields(
+                                fieldWithPath("writer").description("작성자(Seller)"),
+                                fieldWithPath("password").description("비밀번호(Seller)")
                         )));
 
         // then
