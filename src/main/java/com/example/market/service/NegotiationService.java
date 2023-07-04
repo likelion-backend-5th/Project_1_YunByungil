@@ -103,7 +103,7 @@ public class NegotiationService {
     }
 
     private boolean isSeller(String writer, String password, Item item) {
-        if (!item.getWriter().equals(writer) &&
+        if (!item.getWriter().equals(writer) ||
             !item.getPassword().equals(password)) {
             return false;
         }
@@ -112,7 +112,7 @@ public class NegotiationService {
     }
 
     private boolean isBuyer(String writer, String password, Negotiation negotiation) {
-        if (!negotiation.getWriter().equals(writer) &&
+        if (!negotiation.getWriter().equals(writer) ||
             !negotiation.getPassword().equals(password)) {
             return false;
         }
