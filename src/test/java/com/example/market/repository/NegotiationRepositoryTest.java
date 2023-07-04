@@ -113,4 +113,36 @@ class NegotiationRepositoryTest {
         assertThat(allByItemIdAndWriterAndPassword.getTotalElements()).isEqualTo(5);
 
     }
+
+    @DisplayName("findByItemId() 메서드 테스트")
+    @Test
+    void findByItemId() {
+        // given
+        final Long itemId = 1L;
+        final int price = 12_345;
+        final int price2 = 54_321;
+        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .suggestedPrice(price)
+                .build();
+        NegotiationCreateRequestDto createDto2 = NegotiationCreateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .suggestedPrice(price2)
+                .build();
+
+        repository.save(createDto.toEntity(itemId));
+        repository.save(createDto2.toEntity(itemId));
+
+        // when
+        Negotiation negotiation = repository.findAll().get(0);
+        Negotiation negotiation2 = repository.findAll().get(1);
+
+        // then
+        assertThat(repository.existsByItemId(itemId)).isTrue();
+        assertThat(negotiation.getSuggestedPrice()).isEqualTo(price);
+        assertThat(negotiation2.getSuggestedPrice()).isEqualTo(price2);
+
+    }
 }
