@@ -5,6 +5,7 @@ import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ class NegotiationRepositoryTest {
 
     @Autowired
     NegotiationRepository repository;
+
+    @AfterEach
+    void end() {
+        repository.deleteAll();
+    }
 
     @DisplayName("Negotiation Repository 생성 및 조회 테스트")
     @Test
@@ -143,6 +149,36 @@ class NegotiationRepositoryTest {
         assertThat(repository.existsByItemId(itemId)).isTrue();
         assertThat(negotiation.getSuggestedPrice()).isEqualTo(price);
         assertThat(negotiation2.getSuggestedPrice()).isEqualTo(price2);
+
+    }
+
+    @DisplayName("구매가 확정되었을 때 그 구매 제안을 제외한 나머지 제안은 거절로 변경하는 메서드 테스트")
+    @Test
+    void updateNegotiationStatus() {
+        // given
+        final Long itemId = 1L;
+        Negotiation accept = repository.save(Negotiation.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .itemId(itemId)
+                .build());
+
+        Negotiation negotiation = repository.save(Negotiation.builder()
+                .writer("제안 작성자2")
+                .password("제안 비밀번호2")
+                .itemId(itemId)
+                .build());
+
+        // when
+        assertThat(negotiation.getStatus()).isEqualTo("제안");
+
+        repository.updateNegotiationStatus(accept.getId(), itemId);
+
+        // then
+        Negotiation refuse = repository.findById(negotiation.getId()).get();
+
+        assertThat(refuse.getStatus()).isEqualTo("거절");
+
 
     }
 }
