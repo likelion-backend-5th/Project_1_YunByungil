@@ -63,11 +63,46 @@ public class NegotiationService {
         }
 
         if (isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
-            negotiation.updateNegotiation(updateDto.getSuggestedPrice());
-            return new NegotiationResponseDto("제안이 수정되었습니다.");
+            if (hasSuggestedPrice(updateDto)) {
+                reviseSuggestedPrice(updateDto, negotiation);
+                return new NegotiationResponseDto("제안이 수정되었습니다.");
+            }
+
+            if (hasStatus(updateDto)) {
+                if (isStatusAccept(negotiation)) {
+                    changeProposalToAccept(item, negotiation);
+                    changeProposalToReject(itemId, negotiationId);
+                    return new NegotiationResponseDto("구매가 확정되었습니다.");
+                }
+            }
         }
 
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
+    private boolean isStatusAccept(Negotiation negotiation) {
+        return negotiation.getStatus().equals("수락");
+    }
+
+    private boolean hasStatus(NegotiationUpdateRequestDto updateDto) {
+        return updateDto.getStatus() != null && updateDto.getSuggestedPrice() == 0;
+    }
+
+    private boolean hasSuggestedPrice(NegotiationUpdateRequestDto updateDto) {
+        return updateDto.getSuggestedPrice() != 0 && updateDto.getStatus() == null;
+    }
+
+    private void changeProposalToAccept(Item item, Negotiation negotiation) {
+        negotiation.updateNegotiationStatus("확정");
+        item.updateStatus("판매 완료");
+    }
+
+    private int changeProposalToReject(Long itemId, Long negotiationId) {
+        return negotiationRepository.updateNegotiationStatus(negotiationId, itemId);
+    }
+
+    private void reviseSuggestedPrice(NegotiationUpdateRequestDto updateDto, Negotiation negotiation) {
+        negotiation.updateNegotiation(updateDto.getSuggestedPrice());
     }
 
     @Transactional

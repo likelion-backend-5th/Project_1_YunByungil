@@ -46,4 +46,8 @@ public class Item {
     public void updateItemImage(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }
