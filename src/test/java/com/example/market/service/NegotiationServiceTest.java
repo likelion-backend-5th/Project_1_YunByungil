@@ -193,7 +193,7 @@ class NegotiationServiceTest {
 
     }
 
-    @DisplayName("등록된 제안 계정 정보 틀렸을 때 예외 발생")
+    @DisplayName("등록된 제안 삭제할 때 계정 정보 틀렸을 때 예외 발생")
     @Test
     void deleteNegotiationException() {
         // given
@@ -270,6 +270,151 @@ class NegotiationServiceTest {
         }).isInstanceOf(ResponseStatusException.class);
 
         // then
+
+    }
+    
+    @DisplayName("자신이 등록한 제안이 수락 상태일 경우 구매 확정 테스트")
+    @Test
+    void changeStatusAccept() {
+        // given
+        Item item = createItem();
+
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .status("수락")
+                .build();
+
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
+
+        NegotiationUpdateRequestDto purchaseDto = NegotiationUpdateRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .status("확정")
+                .build();
+
+        // when
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), purchaseDto);
+
+        // then
+        Negotiation status = negotiationRepository.findById(negotiation.getId()).get();
+
+        assertThat(status.getStatus()).isEqualTo("확정");
+
+    }
+    @DisplayName("자신이 등록한 제안이 수락 상태가 아닌 상태에서 확정 요청시 예외 발생")
+    @Test
+    void changeStatusAcceptException() {
+        // given
+        Item item = createItem();
+
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .status("제안")
+                .build();
+
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
+
+        NegotiationUpdateRequestDto purchaseDto = NegotiationUpdateRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .status("확정")
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            negotiationService.updateNegotiation(item.getId(), negotiation.getId(), purchaseDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+
+    }
+
+    @DisplayName("구매 확정시 다른 제안은 거절로 변경")
+    @Test
+    void changeProposalToReject() {
+        // given
+        Item item = createItem();
+
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+
+        final String otherWriter = "제안 작성자2";
+        final String otherPassword = "제안 비밀번호2";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+        Negotiation otherNegotiation = createNegotiationOne(item, otherWriter, otherPassword, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .status("수락")
+                .build();
+
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
+
+        NegotiationUpdateRequestDto purchaseDto = NegotiationUpdateRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .status("확정")
+                .build();
+
+        // when
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), purchaseDto);
+
+        // then
+        Negotiation accept = negotiationRepository.findById(negotiation.getId()).get();
+
+        Negotiation refuse = negotiationRepository.findById(otherNegotiation.getId()).get();
+
+        assertThat(accept.getStatus()).isEqualTo("확정");
+        assertThat(refuse.getStatus()).isEqualTo("거절");
+
+    }
+    
+    @DisplayName("구매 확정시 그 아이템의 상태는 판매 완료로 변경")
+    @Test
+    void changeItemStatus() {
+        // given
+        Item item = createItem();
+
+        final String writer = "제안 작성자";
+        final String password = "제안 비밀번호";
+        final int price = 5_000;
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
+                .writer("작성자")
+                .password("비밀번호")
+                .status("수락")
+                .build();
+
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
+
+        NegotiationUpdateRequestDto purchaseDto = NegotiationUpdateRequestDto.builder()
+                .writer("제안 작성자")
+                .password("제안 비밀번호")
+                .status("확정")
+                .build();
+
+        // when
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), purchaseDto);
+        
+        // then
+        Item findItem = itemRepository.findById(item.getId()).get();
+
+        assertThat(findItem.getStatus()).isEqualTo("판매 완료");
 
     }
 
