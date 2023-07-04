@@ -124,3 +124,165 @@ include::{snippets}/comments/path-parameters.adoc[]
 ==== HTTP response
 
 include::{snippets}/comments/http-response.adoc[]
+
+[[resources-comment-update]]
+=== Comment 수정
+
+==== HTTP request
+
+include::{snippets}/comments-update/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/comments-update/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/comments-update/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/comments-update/http-response.adoc[]
+
+[[resources-comments-delete]]
+=== Comment 삭제
+
+==== HTTP request
+
+include::{snippets}/comments-delete/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/comments-delete/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/comments-delete/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/comments-delete/http-response.adoc[]
+
+[[resources-reply-update]]
+=== Reply 수정
+
+==== HTTP request
+
+include::{snippets}/comments-reply/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/comments-reply/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/comments-reply/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/comments-reply/http-response.adoc[]
+
+[[resources-negotiation]]
+== Negotiation
+
+[[resources-negotiation]]
+
+=== Negotiation 등록
+
+==== HTTP request
+
+include::{snippets}/proposals/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals/http-response.adoc[]
+
+[[resources-negotiation-update]]
+
+=== Negotiation 가격 수정
+
+==== HTTP request
+
+include::{snippets}/proposals-update/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-update/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-update/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-update/http-response.adoc[]
+
+[[resources-negotiation-delete]]
+
+=== Negotiation 삭제
+
+==== HTTP request
+
+include::{snippets}/proposals-delete/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-delete/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-delete/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-delete/http-response.adoc[]
+
+[[resources-negotiation-statusUpdate]]
+
+=== Negotiation Status 변경
+
+==== HTTP request
+
+include::{snippets}/proposals-statusUpdate/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-statusUpdate/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-statusUpdate/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-statusUpdate/http-response.adoc[]
+
+[[resources-negotiation-purchaseConfirm]]
+
+=== Negotiation 구매 확정
+
+==== HTTP request
+
+include::{snippets}/proposals-purchaseConfirm/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/proposals-purchaseConfirm/request-fields.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/proposals-purchaseConfirm/path-parameters.adoc[]
+
+==== HTTP response
+
+include::{snippets}/proposals-purchaseConfirm/http-response.adoc[]
+
+
