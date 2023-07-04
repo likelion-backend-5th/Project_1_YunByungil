@@ -5,6 +5,7 @@ import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
+import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -112,6 +114,56 @@ class NegotiationServiceTest {
         
     }
 
+    @DisplayName("등록된 제안 수정 테스트 (제안자 기준)")
+    @Test
+    void updateNegotiation() {
+        // given
+        final int updatePrice = 10_000;
+        final String writer = "제안 수정 작성자";
+        final String password = "제안 수정 비밀번호";
+        final int price = 5_000;
+        Item item = createItem();
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto updateDto = NegotiationUpdateRequestDto.builder()
+                .writer("제안 수정 작성자")
+                .password("제안 수정 비밀번호")
+                .suggestedPrice(updatePrice)
+                .build();
+
+        // when
+        negotiationService.updateNegotiation(item.getId(), negotiation.getId(), updateDto);
+
+        // then
+        Negotiation findNegotiation = negotiationRepository.findById(negotiation.getId()).get();
+        assertThat(findNegotiation.getSuggestedPrice()).isEqualTo(updatePrice);
+    }
+
+    @DisplayName("등록된 제안 수정 *예외* 테스트 (제안자 기준)")
+    @Test
+    void updateNegotiationException() {
+        // given
+        final int updatePrice = 10_000;
+        final String writer = "제안 수정 작성자";
+        final String password = "제안 수정 비밀번호";
+        final int price = 5_000;
+        Item item = createItem();
+        Negotiation negotiation = createNegotiationOne(item, writer, password, price);
+
+        NegotiationUpdateRequestDto updateDto = NegotiationUpdateRequestDto.builder()
+                .writer("다른 작성자")
+                .password("다른 비밀번호")
+                .suggestedPrice(updatePrice)
+                .build();
+
+        // when
+        assertThatThrownBy(() -> {
+            negotiationService.updateNegotiation(item.getId(), negotiation.getId(), updateDto);
+        }).isInstanceOf(ResponseStatusException.class);
+
+        // then
+    }
+
     private Item createItem() {
         return itemRepository.save(Item.builder()
                 .title("제목")
@@ -120,6 +172,19 @@ class NegotiationServiceTest {
                 .writer("작성자")
                 .description("내용")
                 .build());
+    }
+
+    private Negotiation createNegotiationOne(Item item, String writer, String password, int price) {
+        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                .writer("제안 수정 작성자")
+                .password("제안 수정 비밀번호")
+                .suggestedPrice(5_000)
+                .build();
+        Negotiation negotiation = createDto.toEntity(item.getId());
+
+        negotiationRepository.save(negotiation);
+
+        return negotiation;
     }
 
     private void createSixNegotiation(Long itemId) {
