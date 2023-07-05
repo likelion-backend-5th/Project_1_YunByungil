@@ -20,6 +20,6 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, Long> 
     Page<Negotiation> findAllByItemIdAndWriterAndPassword(Long itemId, String writer, String password, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
-    @Query("update Negotiation n set n.status = '거절' where n.id <> :negotiationId and n.itemId = :itemId")
+    @Query("update Negotiation n set n.status = 'REJECT' where n.id <> :negotiationId and n.itemId = :itemId")
     int updateNegotiationStatus(@Param("negotiationId") Long negotiationId, @Param("itemId") Long itemId);
 }

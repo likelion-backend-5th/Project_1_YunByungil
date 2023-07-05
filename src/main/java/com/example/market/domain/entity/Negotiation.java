@@ -1,9 +1,7 @@
 package com.example.market.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.market.domain.entity.enums.NegotiationStatus;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,15 +18,16 @@ public class Negotiation {
 
     private Long itemId;
     private int suggestedPrice;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private NegotiationStatus status;
     private String writer;
     private String password;
 
     @Builder
-    public Negotiation(Long itemId, int suggestedPrice, String status, String writer, String password) {
+    public Negotiation(Long itemId, int suggestedPrice, String writer, String password) {
         this.itemId = itemId;
         this.suggestedPrice = suggestedPrice;
-        this.status = "제안";
+        this.status = NegotiationStatus.SUGGEST;
         this.writer = writer;
         this.password = password;
     }
@@ -37,7 +36,7 @@ public class Negotiation {
         this.suggestedPrice = suggestedPrice;
     }
 
-    public void updateNegotiationStatus(String status) {
+    public void updateNegotiationStatus(NegotiationStatus status) {
         this.status = status;
     }
 }

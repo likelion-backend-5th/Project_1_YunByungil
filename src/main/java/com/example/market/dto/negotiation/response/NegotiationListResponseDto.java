@@ -16,6 +16,6 @@ public class NegotiationListResponseDto {
     public NegotiationListResponseDto(Negotiation negotiation) {
         this.id = negotiation.getId();
         this.suggestedPrice = negotiation.getSuggestedPrice();
-        this.status = negotiation.getStatus();
+        this.status = negotiation.getStatus().getStatus();
     }
 }

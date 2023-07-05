@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.dto.negotiation.response.NegotiationResponseDto;
@@ -57,8 +58,13 @@ public class NegotiationService {
         Negotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        NegotiationStatus status = null;
+        if (updateDto.getSuggestedPrice() == 0) {
+            status = NegotiationStatus.findByNegotiationStatus(updateDto.getStatus());
+        }
+
         if (isSeller(updateDto.getWriter(), updateDto.getPassword(), item)) {
-            negotiation.updateNegotiationStatus(updateDto.getStatus());
+            negotiation.updateNegotiationStatus(status);
             return new NegotiationResponseDto("제안의 상태가 변경되었습니다.");
         }
 
@@ -70,30 +76,30 @@ public class NegotiationService {
 
             if (hasStatus(updateDto)) {
                 if (isStatusAccept(negotiation)) {
-                    changeProposalToAccept(item, negotiation);
+                    changeProposalToAccept(item, negotiation, status);
                     changeProposalToReject(itemId, negotiationId);
                     return new NegotiationResponseDto("구매가 확정되었습니다.");
                 }
             }
         }
-
+        
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     private boolean isStatusAccept(Negotiation negotiation) {
-        return negotiation.getStatus().equals("수락");
+        return negotiation.getStatus().equals(NegotiationStatus.ACCEPT);
     }
 
     private boolean hasStatus(NegotiationUpdateRequestDto updateDto) {
-        return updateDto.getStatus() != null && updateDto.getSuggestedPrice() == 0;
+        return updateDto.getSuggestedPrice() == 0;
     }
 
     private boolean hasSuggestedPrice(NegotiationUpdateRequestDto updateDto) {
         return updateDto.getSuggestedPrice() != 0 && updateDto.getStatus() == null;
     }
 
-    private void changeProposalToAccept(Item item, Negotiation negotiation) {
-        negotiation.updateNegotiationStatus("확정");
+    private void changeProposalToAccept(Item item, Negotiation negotiation, NegotiationStatus status) {
+        negotiation.updateNegotiationStatus(status);
         item.updateStatus("판매 완료");
     }
 
