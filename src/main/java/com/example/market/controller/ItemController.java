@@ -48,7 +48,7 @@ public class ItemController {
 
     @PutMapping("/items/{itemId}")
     public ItemResponseDto updateItem(@PathVariable Long itemId,
-                                      @RequestBody ItemUpdateRequestDto dto) {
+                                      @Valid @RequestBody ItemUpdateRequestDto dto) {
         itemService.updateItem(itemId, dto);
 
         return new ItemResponseDto("물품이 수정되었습니다.");
@@ -56,7 +56,7 @@ public class ItemController {
 
     @DeleteMapping("/items/{itemId}")
     public ItemResponseDto deleteItem(@PathVariable Long itemId,
-                                      @RequestBody ItemDeleteRequestDto dto) {
+                                      @Valid @RequestBody ItemDeleteRequestDto dto) {
         itemService.deleteItem(itemId, dto);
         return new ItemResponseDto("물품을 삭제했습니다.");
     }

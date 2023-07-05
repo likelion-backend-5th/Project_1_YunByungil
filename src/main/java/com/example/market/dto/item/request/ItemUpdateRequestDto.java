@@ -1,6 +1,9 @@
 package com.example.market.dto.item.request;
 
 import com.example.market.domain.entity.Item;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,10 +13,15 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ItemUpdateRequestDto {
 
+    @NotBlank
     private String title;
+    @NotBlank
     private String description;
+    @PositiveOrZero
     private int minPriceWanted;
+    @NotBlank
     private String writer;
+    @NotBlank
     private String password;
 
     @Builder

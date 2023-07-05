@@ -7,6 +7,7 @@ import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.dto.comment.response.CommentResponseDto;
 import com.example.market.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public class CommentController {
 
     @PostMapping("/items/{itemId}/comments")
     public CommentResponseDto create(@PathVariable Long itemId,
-                                     @RequestBody CommentCreateRequestDto dto) {
+                                     @Valid @RequestBody CommentCreateRequestDto dto) {
         commentService.create(itemId, dto);
 
         return new CommentResponseDto("댓글이 등록되었습니다.");
@@ -38,7 +39,7 @@ public class CommentController {
     @PutMapping("/items/{itemId}/comments/{commentId}")
     public CommentResponseDto updateComment(@PathVariable Long itemId,
                                             @PathVariable Long commentId,
-                                            @RequestBody CommentUpdateRequestDto dto) {
+                                            @Valid @RequestBody CommentUpdateRequestDto dto) {
         commentService.updateComment(itemId, commentId, dto);
 
         return new CommentResponseDto("댓글이 수정되었습니다.");
@@ -47,7 +48,7 @@ public class CommentController {
     @DeleteMapping("/items/{itemId}/comments/{commentId}")
     public CommentResponseDto deleteComment(@PathVariable Long itemId,
                                             @PathVariable Long commentId,
-                                            @RequestBody CommentDeleteRequestDto dto) {
+                                            @Valid @RequestBody CommentDeleteRequestDto dto) {
         commentService.deleteComment(itemId, commentId, dto);
 
         return new CommentResponseDto("댓글을 삭제했습니다.");
@@ -57,7 +58,7 @@ public class CommentController {
     @PutMapping("/items/{itemId}/comments/{commentId}/reply")
     public CommentResponseDto updateCommentReply(@PathVariable Long itemId,
                                                  @PathVariable Long commentId,
-                                                 @RequestBody CommentReplyRequestDto replyDto) {
+                                                 @Valid @RequestBody CommentReplyRequestDto replyDto) {
         commentService.updateCommentReply(itemId, commentId, replyDto);
 
         return new CommentResponseDto("댓글에 답변이 추가되었습니다.");

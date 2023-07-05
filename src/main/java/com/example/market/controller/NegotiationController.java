@@ -7,6 +7,7 @@ import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.dto.negotiation.response.NegotiationResponseDto;
 import com.example.market.service.NegotiationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public class NegotiationController {
 
     @PostMapping("/items/{itemId}/proposals")
     public NegotiationResponseDto createNegotiation(@PathVariable Long itemId,
-                                                    @RequestBody NegotiationCreateRequestDto createDto) {
+                                                    @Valid  @RequestBody NegotiationCreateRequestDto createDto) {
         negotiationService.createNegotiation(itemId, createDto);
 
         return new NegotiationResponseDto("구매 제안이 등록되었습니다.");
@@ -31,14 +32,14 @@ public class NegotiationController {
     public Page<NegotiationListResponseDto> readAllNegotiation(@PathVariable Long itemId,
                                                                @RequestParam(value = "page", defaultValue = "0") int page,
                                                                @RequestParam(value = "limit", defaultValue = "20") int limit,
-                                                               @RequestBody NegotiationListRequestDto listDto) {
+                                                               @Valid @RequestBody NegotiationListRequestDto listDto) {
         return negotiationService.readAllNegotiation(itemId, page, limit, listDto);
     }
 
     @PutMapping("/items/{itemId}/proposals/{proposalId}")
     public NegotiationResponseDto updateNegotiation(@PathVariable Long itemId,
                                                     @PathVariable Long proposalId,
-                                                    @RequestBody NegotiationUpdateRequestDto updateDto) {
+                                                    @Valid @RequestBody NegotiationUpdateRequestDto updateDto) {
         return negotiationService.updateNegotiation(itemId, proposalId, updateDto);
 
     }
@@ -46,7 +47,7 @@ public class NegotiationController {
     @DeleteMapping("/items/{itemId}/proposals/{proposalId}")
     public NegotiationResponseDto deleteNegotiation(@PathVariable Long itemId,
                                                     @PathVariable Long proposalId,
-                                                    @RequestBody NegotiationDeleteRequestDto deleteDto) {
+                                                    @Valid @RequestBody NegotiationDeleteRequestDto deleteDto) {
         negotiationService.deleteNegotiation(itemId, proposalId, deleteDto);
 
         return new NegotiationResponseDto("제안을 삭제했습니다.");

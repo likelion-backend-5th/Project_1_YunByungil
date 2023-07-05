@@ -1,7 +1,9 @@
 package com.example.market.dto.item.request;
 
 import com.example.market.domain.entity.Item;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,15 +13,15 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ItemCreateRequestDto {
 
-    @NotNull(message = "제목을 입력해주세요.")
+    @NotBlank(message = "제목을 입력해주세요.")
     private String title;
-    @NotNull(message = "내용을 입력해주세요.")
+    @NotBlank(message = "내용을 입력해주세요.")
     private String description;
-    @NotNull(message = "가격을 입력해주세요.")
+    @PositiveOrZero(message = "가격을 입력해주세요.")
     private int minPriceWanted;
-    @NotNull(message = "작성자를 입력해주세요.")
+    @NotBlank(message = "작성자를 입력해주세요.")
     private String writer;
-    @NotNull(message = "비밀번호를 입력해주세요.")
+    @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;
 
     @Builder
