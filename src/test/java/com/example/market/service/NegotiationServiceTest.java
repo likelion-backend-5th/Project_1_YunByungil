@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
@@ -47,7 +48,7 @@ class NegotiationServiceTest {
     @Test
     void createProposal() {
         // given
-        final String defaultStatus = "제안";
+        final String defaultStatus = "SUGGEST";
         Item item = createItem();
 
         NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
@@ -62,7 +63,7 @@ class NegotiationServiceTest {
         // then
         Negotiation negotiation = negotiationRepository.findById(negotiationId).get();
 
-        assertThat(negotiation.getStatus()).isEqualTo(defaultStatus);
+        assertThat(negotiation.getStatus()).isEqualTo(NegotiationStatus.SUGGEST);
         assertThat(negotiation.getSuggestedPrice()).isEqualTo(5_000);
 
     }
@@ -244,7 +245,7 @@ class NegotiationServiceTest {
         // then
         Negotiation findNegotiation = negotiationRepository.findAll().get(0);
 
-        assertThat(findNegotiation.getStatus()).isEqualTo("수락");
+        assertThat(findNegotiation.getStatus()).isEqualTo(NegotiationStatus.ACCEPT);
 
     }
     @DisplayName("제안의 상태를 변경할 때 계정 정보 다르면 예외 발생 테스트")
@@ -287,7 +288,7 @@ class NegotiationServiceTest {
         NegotiationUpdateRequestDto statusDto = NegotiationUpdateRequestDto.builder()
                 .writer("작성자")
                 .password("비밀번호")
-                .status("수락")
+                .status(NegotiationStatus.ACCEPT.getStatus())
                 .build();
 
         negotiationService.updateNegotiation(item.getId(), negotiation.getId(), statusDto);
@@ -295,7 +296,7 @@ class NegotiationServiceTest {
         NegotiationUpdateRequestDto purchaseDto = NegotiationUpdateRequestDto.builder()
                 .writer("제안 작성자")
                 .password("제안 비밀번호")
-                .status("확정")
+                .status(NegotiationStatus.CONFIRM.getStatus())
                 .build();
 
         // when
@@ -304,7 +305,7 @@ class NegotiationServiceTest {
         // then
         Negotiation status = negotiationRepository.findById(negotiation.getId()).get();
 
-        assertThat(status.getStatus()).isEqualTo("확정");
+        assertThat(status.getStatus()).isEqualTo(NegotiationStatus.CONFIRM);
 
     }
     @DisplayName("자신이 등록한 제안이 수락 상태가 아닌 상태에서 확정 요청시 예외 발생")
@@ -378,8 +379,8 @@ class NegotiationServiceTest {
 
         Negotiation refuse = negotiationRepository.findById(otherNegotiation.getId()).get();
 
-        assertThat(accept.getStatus()).isEqualTo("확정");
-        assertThat(refuse.getStatus()).isEqualTo("거절");
+        assertThat(accept.getStatus()).isEqualTo(NegotiationStatus.CONFIRM);
+        assertThat(refuse.getStatus()).isEqualTo(NegotiationStatus.REJECT);
 
     }
     

@@ -2,6 +2,7 @@ package com.example.market.controller;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
@@ -188,7 +189,7 @@ class NegotiationControllerTest {
         NegotiationUpdateRequestDto updateDto = NegotiationUpdateRequestDto.builder()
                 .writer("작성자")
                 .password("비밀번호")
-                .status("수락 || 거절")
+                .status(NegotiationStatus.ACCEPT.getStatus())
                 .build();
 
         String url = "http://localhost:8080/items/{itemId}/proposals/{proposalId}";
@@ -227,7 +228,7 @@ class NegotiationControllerTest {
         NegotiationUpdateRequestDto updateDto = NegotiationUpdateRequestDto.builder()
                 .writer("제안 작성자")
                 .password("제안 비밀번호")
-                .status("확정")
+                .status(NegotiationStatus.CONFIRM.getStatus())
                 .build();
 
 
@@ -242,7 +243,7 @@ class NegotiationControllerTest {
                         requestFields(
                                 fieldWithPath("writer").description("제안 작성자"),
                                 fieldWithPath("password").description("제안 비밀번호"),
-                                fieldWithPath("status").description("확정"),
+                                fieldWithPath("status").description(NegotiationStatus.CONFIRM.getStatus()),
                                 fieldWithPath("suggestedPrice").description("0")
                         ),
                         pathParameters(

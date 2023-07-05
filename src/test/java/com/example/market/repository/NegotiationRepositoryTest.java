@@ -2,6 +2,7 @@ package com.example.market.repository;
 
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import org.assertj.core.api.Assertions;
@@ -34,7 +35,7 @@ class NegotiationRepositoryTest {
     @Test
     void createAndFind() {
         // given
-        final String defaultStatus = "제안";
+//        final String defaultStatus = "제안";
         repository.save(Negotiation.builder()
                 .writer("작성자")
                 .suggestedPrice(10_000)
@@ -48,7 +49,7 @@ class NegotiationRepositoryTest {
 
         // then
         assertThat(negotiation.getItemId()).isEqualTo(1L);
-        assertThat(negotiation.getStatus()).isEqualTo(defaultStatus);
+        assertThat(negotiation.getStatus()).isEqualTo(NegotiationStatus.SUGGEST);
     }
 
     @DisplayName("findAllByItemId() 메소드 테스트")
@@ -170,14 +171,14 @@ class NegotiationRepositoryTest {
                 .build());
 
         // when
-        assertThat(negotiation.getStatus()).isEqualTo("제안");
+        assertThat(negotiation.getStatus()).isEqualTo(NegotiationStatus.SUGGEST);
 
         repository.updateNegotiationStatus(accept.getId(), itemId);
 
         // then
         Negotiation refuse = repository.findById(negotiation.getId()).get();
 
-        assertThat(refuse.getStatus()).isEqualTo("거절");
+        assertThat(refuse.getStatus()).isEqualTo(NegotiationStatus.REJECT);
 
 
     }
