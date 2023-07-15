@@ -7,6 +7,7 @@ import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
+import com.example.market.exception.MarketAppException;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
 import org.assertj.core.api.Assertions;
@@ -80,7 +81,7 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> {
             commentService.create(itemId, dto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
         
         // then
         
@@ -166,7 +167,7 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> {
             commentService.updateComment(itemId + 120, commentId, dto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
     }
@@ -194,11 +195,11 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> { // 1. 작성자가 다른 경우
             commentService.updateComment(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         assertThatThrownBy(() -> { // 2. 패스워드가 다른 경우
             commentService.updateComment(itemId, commentId, dontMatchPassword);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
 
@@ -243,7 +244,7 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> {
             commentService.deleteComment(notSameItemId, commentId, deleteDto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
     }
@@ -269,11 +270,11 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> {
             commentService.deleteComment(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         assertThatThrownBy(() -> {
             commentService.deleteComment(itemId, commentId, dontMatchPassword);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
 
@@ -323,11 +324,11 @@ class CommentServiceTest {
         // when
         assertThatThrownBy(() -> {
             commentService.updateCommentReply(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         assertThatThrownBy(() -> {
             commentService.updateCommentReply(itemId, commentId, dontMatchPassword);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
 

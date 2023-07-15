@@ -9,6 +9,7 @@ import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationListRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationUpdateRequestDto;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
+import com.example.market.exception.MarketAppException;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
@@ -216,7 +217,7 @@ class NegotiationServiceTest {
         // when
         assertThatThrownBy(() -> {
             negotiationService.deleteNegotiation(item.getId(), negotiation.getId(), deleteDto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         // then
 
