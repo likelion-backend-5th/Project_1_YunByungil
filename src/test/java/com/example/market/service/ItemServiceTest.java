@@ -6,6 +6,7 @@ import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.dto.item.response.ItemListResponseDto;
 import com.example.market.dto.item.response.ItemOneResponseDto;
+import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,7 +104,7 @@ class ItemServiceTest {
     void notItemException() {
         assertThatThrownBy(() -> {
             itemService.readItemOne(1L);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
     }
 
     @DisplayName("아이템 수정 테스트(이미지X)")
@@ -172,11 +173,11 @@ class ItemServiceTest {
         // then
         assertThatThrownBy(() -> {
             itemService.updateItem(savedItem.getId(), notSameWriterUpdateDto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
 
         assertThatThrownBy(() -> {
             itemService.updateItem(savedItem.getId(), notSamePasswordUpdateDto);
-        }).isInstanceOf(ResponseStatusException.class);
+        }).isInstanceOf(MarketAppException.class);
     }
 
     @DisplayName("아이템 삭제 기능 테스트")

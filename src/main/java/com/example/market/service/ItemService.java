@@ -6,6 +6,7 @@ import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.dto.item.response.ItemListResponseDto;
 import com.example.market.dto.item.response.ItemOneResponseDto;
+import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static com.example.market.exception.ErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +50,7 @@ public class ItemService {
 
     public ItemOneResponseDto readItemOne(Long id) {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         return new ItemOneResponseDto(item);
     }
@@ -55,7 +58,7 @@ public class ItemService {
     @Transactional
     public void updateItem(Long id, ItemUpdateRequestDto dto) {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
 
@@ -65,7 +68,7 @@ public class ItemService {
     @Transactional
     public void deleteItem(Long id, ItemDeleteRequestDto dto) {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
 
@@ -75,7 +78,7 @@ public class ItemService {
     @Transactional
     public void updateItemImage(Long id, MultipartFile image, String writer, String password) throws IOException {
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         checkWriterAndPassword(writer, password, item);
 
@@ -86,7 +89,7 @@ public class ItemService {
             Files.createDirectories(Path.of(profileDir));
         } catch (IOException e) {
             log.error(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new MarketAppException(SERVER_ERROR, SERVER_ERROR.getMessage());
         }
 
         // 확장자를 포함한 이미지 이름 만들기 profile.{확장자}
@@ -107,7 +110,7 @@ public class ItemService {
             image.transferTo(path);
         } catch (IOException e) {
             e.getMessage();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new MarketAppException(SERVER_ERROR, SERVER_ERROR.getMessage());
         }
 
 
@@ -120,11 +123,11 @@ public class ItemService {
 
     private void checkWriterAndPassword(String writer, String password , Item item) {
         if (!item.getWriter().equals(writer)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
         }
 
         if (!item.getPassword().equals(password)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
         }
     }
 
