@@ -6,6 +6,7 @@ import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.dto.negotiation.response.NegotiationResponseDto;
+import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.example.market.exception.ErrorCode.*;
+
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -29,7 +32,7 @@ public class NegotiationService {
     @Transactional
     public Long createNegotiation(Long itemId, NegotiationCreateRequestDto dto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         return negotiationRepository.save(dto.toEntity(itemId)).getId();
     }
@@ -39,7 +42,7 @@ public class NegotiationService {
                                                                int limit,
                                                                NegotiationListRequestDto listDto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
 
@@ -53,10 +56,10 @@ public class NegotiationService {
     @Transactional
     public NegotiationResponseDto updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         Negotiation negotiation = negotiationRepository.findById(negotiationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_NEGOTIATION, NOT_FOUND_NEGOTIATION.getMessage()));
 
         NegotiationStatus status = null;
         if (updateDto.getSuggestedPrice() == 0) {
@@ -82,7 +85,8 @@ public class NegotiationService {
                 }
             }
         }
-        
+
+        // TODO: refactor
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
@@ -114,13 +118,13 @@ public class NegotiationService {
     @Transactional
     public void deleteNegotiation(Long itemId, Long negotiationId, NegotiationDeleteRequestDto deleteDto) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         Negotiation negotiation = negotiationRepository.findById(negotiationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_NEGOTIATION, NOT_FOUND_NEGOTIATION.getMessage()));
 
         if (!isBuyer(deleteDto.getWriter(), deleteDto.getPassword(), negotiation)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
         }
 
         negotiationRepository.delete(negotiation);
