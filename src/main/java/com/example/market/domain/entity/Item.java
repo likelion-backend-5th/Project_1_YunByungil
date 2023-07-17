@@ -1,5 +1,6 @@
 package com.example.market.domain.entity;
 
+import com.example.market.domain.entity.enums.ItemStatus;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -20,7 +21,8 @@ public class Item {
     private String description;
     private String imageUrl;
     private int minPriceWanted;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ItemStatus status;
     private String writer;
     private String password;
 
@@ -30,7 +32,7 @@ public class Item {
         this.description = description;
         this.imageUrl = imageUrl;
         this.minPriceWanted = minPriceWanted;
-        this.status = "판매중";
+        this.status = ItemStatus.SALE;
         this.writer = writer;
         this.password = password;
     }
@@ -47,7 +49,7 @@ public class Item {
         this.imageUrl = imageUrl;
     }
 
-    public void updateStatus(String status) {
+    public void updateStatus(ItemStatus status) {
         this.status = status;
     }
 }

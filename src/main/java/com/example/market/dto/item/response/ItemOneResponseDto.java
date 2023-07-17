@@ -1,6 +1,7 @@
 package com.example.market.dto.item.response;
 
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.ItemStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,6 @@ public class ItemOneResponseDto {
         this.title = item.getTitle();
         this.description = item.getDescription();
         this.minPriceWanted = item.getMinPriceWanted();
-        this.status = item.getStatus();
+        this.status = item.getStatus().getStatus();
     }
 }

@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.ItemStatus;
 import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
@@ -105,7 +106,7 @@ public class NegotiationService {
 
     private void changeProposalToAccept(Item item, Negotiation negotiation, NegotiationStatus status) {
         negotiation.updateNegotiationStatus(status);
-        item.updateStatus("판매 완료");
+        item.updateStatus(ItemStatus.SOLD);
     }
 
     private int changeProposalToReject(Long itemId, Long negotiationId) {
