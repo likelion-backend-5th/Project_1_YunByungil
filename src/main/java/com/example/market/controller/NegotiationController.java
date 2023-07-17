@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.market.common.SystemMessage.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -25,7 +27,7 @@ public class NegotiationController {
                                                     @Valid  @RequestBody NegotiationCreateRequestDto createDto) {
         negotiationService.createNegotiation(itemId, createDto);
 
-        return new NegotiationResponseDto("구매 제안이 등록되었습니다.");
+        return new NegotiationResponseDto(REGISTER_NEGOTIATION);
     }
 
     @GetMapping("/items/{itemId}/proposals")
@@ -50,6 +52,6 @@ public class NegotiationController {
                                                     @Valid @RequestBody NegotiationDeleteRequestDto deleteDto) {
         negotiationService.deleteNegotiation(itemId, proposalId, deleteDto);
 
-        return new NegotiationResponseDto("제안을 삭제했습니다.");
+        return new NegotiationResponseDto(DELETE_NEGOTIATION);
     }
 }
