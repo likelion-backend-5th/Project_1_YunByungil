@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import static com.example.market.common.SystemMessage.*;
+
 @RequiredArgsConstructor
 @RestController
 public class ItemController {
@@ -26,7 +28,7 @@ public class ItemController {
     public ResponseEntity<ItemResponseDto> create(@Valid @RequestBody ItemCreateRequestDto dto) {
         itemService.create(dto);
 
-        ItemResponseDto responseDto = new ItemResponseDto("등록이 완료되었습니다.");
+        ItemResponseDto responseDto = new ItemResponseDto(REGISTER_ITEM);
         return ResponseEntity.ok().body(responseDto);
     }
 
@@ -51,14 +53,14 @@ public class ItemController {
                                       @Valid @RequestBody ItemUpdateRequestDto dto) {
         itemService.updateItem(itemId, dto);
 
-        return new ItemResponseDto("물품이 수정되었습니다.");
+        return new ItemResponseDto(UPDATE_ITEM);
     }
 
     @DeleteMapping("/items/{itemId}")
     public ItemResponseDto deleteItem(@PathVariable Long itemId,
                                       @Valid @RequestBody ItemDeleteRequestDto dto) {
         itemService.deleteItem(itemId, dto);
-        return new ItemResponseDto("물품을 삭제했습니다.");
+        return new ItemResponseDto(DELETE_ITEM);
     }
 
     @PutMapping("/items/{itemId}/image")
@@ -68,7 +70,7 @@ public class ItemController {
                                            @RequestParam String password) throws IOException {
 
         itemService.updateItemImage(itemId, image, writer, password);
-        return new ItemResponseDto("이미지가 등록되었습니다.");
+        return new ItemResponseDto(REGISTER_IMAGE);
     }
 
 

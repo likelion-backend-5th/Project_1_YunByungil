@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.ItemStatus;
 import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static com.example.market.common.SystemMessage.*;
 import static com.example.market.exception.ErrorCode.*;
 
 @RequiredArgsConstructor
@@ -68,20 +70,20 @@ public class NegotiationService {
 
         if (isSeller(updateDto.getWriter(), updateDto.getPassword(), item)) {
             negotiation.updateNegotiationStatus(status);
-            return new NegotiationResponseDto("제안의 상태가 변경되었습니다.");
+            return new NegotiationResponseDto(CHANGE_SUGGEST_STATUS);
         }
 
         if (isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
             if (hasSuggestedPrice(updateDto)) {
                 reviseSuggestedPrice(updateDto, negotiation);
-                return new NegotiationResponseDto("제안이 수정되었습니다.");
+                return new NegotiationResponseDto(CHANGE_SUGGEST);
             }
 
             if (hasStatus(updateDto)) {
                 if (isStatusAccept(negotiation)) {
                     changeProposalToAccept(item, negotiation, status);
                     changeProposalToReject(itemId, negotiationId);
-                    return new NegotiationResponseDto("구매가 확정되었습니다.");
+                    return new NegotiationResponseDto(PURCHASE_CONFIRM);
                 }
             }
         }
@@ -104,7 +106,7 @@ public class NegotiationService {
 
     private void changeProposalToAccept(Item item, Negotiation negotiation, NegotiationStatus status) {
         negotiation.updateNegotiationStatus(status);
-        item.updateStatus("판매 완료");
+        item.updateStatus(ItemStatus.SOLD);
     }
 
     private int changeProposalToReject(Long itemId, Long negotiationId) {

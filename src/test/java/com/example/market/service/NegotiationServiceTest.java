@@ -3,6 +3,7 @@ package com.example.market.service;
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.enums.ItemStatus;
 import com.example.market.domain.entity.enums.NegotiationStatus;
 import com.example.market.dto.negotiation.request.NegotiationCreateRequestDto;
 import com.example.market.dto.negotiation.request.NegotiationDeleteRequestDto;
@@ -416,7 +417,7 @@ class NegotiationServiceTest {
         // then
         Item findItem = itemRepository.findById(item.getId()).get();
 
-        assertThat(findItem.getStatus()).isEqualTo("판매 완료");
+        assertThat(findItem.getStatus()).isEqualTo(ItemStatus.SOLD);
 
     }
 

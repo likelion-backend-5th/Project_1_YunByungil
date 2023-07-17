@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import static com.example.market.common.SystemMessage.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -25,7 +27,7 @@ public class CommentController {
                                      @Valid @RequestBody CommentCreateRequestDto dto) {
         commentService.create(itemId, dto);
 
-        return new CommentResponseDto("댓글이 등록되었습니다.");
+        return new CommentResponseDto(REGISTER_COMMENT);
     }
 
     @GetMapping("/items/{itemId}/comments")
@@ -42,7 +44,7 @@ public class CommentController {
                                             @Valid @RequestBody CommentUpdateRequestDto dto) {
         commentService.updateComment(itemId, commentId, dto);
 
-        return new CommentResponseDto("댓글이 수정되었습니다.");
+        return new CommentResponseDto(UPDATE_COMMENT);
     }
 
     @DeleteMapping("/items/{itemId}/comments/{commentId}")
@@ -51,7 +53,7 @@ public class CommentController {
                                             @Valid @RequestBody CommentDeleteRequestDto dto) {
         commentService.deleteComment(itemId, commentId, dto);
 
-        return new CommentResponseDto("댓글을 삭제했습니다.");
+        return new CommentResponseDto(DELETE_COMMENT);
     }
 
 
@@ -61,6 +63,6 @@ public class CommentController {
                                                  @Valid @RequestBody CommentReplyRequestDto replyDto) {
         commentService.updateCommentReply(itemId, commentId, replyDto);
 
-        return new CommentResponseDto("댓글에 답변이 추가되었습니다.");
+        return new CommentResponseDto(REGISTER_REPLY);
     }
 }
