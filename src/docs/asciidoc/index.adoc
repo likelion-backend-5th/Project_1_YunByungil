@@ -353,6 +353,24 @@ include::{snippets}/proposals-purchaseConfirm/path-parameters.adoc[]
 
 include::{snippets}/proposals-purchaseConfirm/http-response.adoc[]
 
+[[resources-user]]
+== User
+
+[[resources-user]]
+
+=== User 등록 (회원가입)
+
+==== HTTP request
+
+include::{snippets}/join/http-request.adoc[]
+
+==== Request Field
+
+include::{snippets}/join/request-fields.adoc[]
+
+==== HTTP response
+
+include::{snippets}/join/http-response.adoc[]
 
 
 
