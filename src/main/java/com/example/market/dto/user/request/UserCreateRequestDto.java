@@ -1,8 +1,9 @@
-package com.example.market.dto.user;
+package com.example.market.dto.user.request;
 
 import com.example.market.domain.entity.enums.Role;
 import com.example.market.domain.entity.user.Address;
 import com.example.market.domain.entity.user.User;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class UserCreateRequestDto {
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
     private String phoneNumber;
     private String email;

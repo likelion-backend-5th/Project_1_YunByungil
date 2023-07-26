@@ -3,17 +3,14 @@ package com.example.market.repository.user;
 import com.example.market.domain.entity.enums.Role;
 import com.example.market.domain.entity.user.Address;
 import com.example.market.domain.entity.user.User;
-import com.example.market.dto.user.UserCreateRequestDto;
-import org.assertj.core.api.Assertions;
+import com.example.market.dto.user.request.UserCreateRequestDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class UserRepositoryTest {
