@@ -1,24 +1,33 @@
 package com.example.market.controller;
 
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.Role;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.item.request.ItemCreateRequestDto;
-import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -41,6 +50,11 @@ class ItemControllerTest {
     @Autowired
     ItemRepository itemRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User user;
+
     @BeforeEach
     public void setUp(RestDocumentationContextProvider restDocumentation) {
         itemRepository.deleteAll();
@@ -52,6 +66,15 @@ class ItemControllerTest {
                 .withRequestDefaults(prettyPrint())
                 .withResponseDefaults(prettyPrint()))
                 .build();
+
+        user = userRepository.save(User.builder()
+                .username("아이디")
+                .password("비밀번호")
+                .role(Role.USER)
+                .build());
+
+        SecurityContext context1 = SecurityContextHolder.getContext();
+        context1.setAuthentication(new UsernamePasswordAuthenticationToken(user.getId(), user.getPassword(), new ArrayList<>()));
     }
 
     @AfterEach
@@ -64,8 +87,6 @@ class ItemControllerTest {
                 .title("제목1")
                 .description("내용1")
                 .minPriceWanted(10_000)
-                .writer("작성자1")
-                .password("비밀번호1")
                 .build();
 
         return dto;
@@ -80,9 +101,13 @@ class ItemControllerTest {
 
         ItemCreateRequestDto dto = createRequestDto();
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
         mvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication)
                 .content(new ObjectMapper().writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andDo(document("/items",
@@ -106,7 +131,7 @@ class ItemControllerTest {
         String url = "https://localhost:8080/items/";
 
         ItemCreateRequestDto dto = createRequestDto();
-        Item savedItem = itemRepository.save(dto.toEntity());
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
         // when
         mvc.perform(get(url + "{id}", savedItem.getId())
@@ -138,8 +163,7 @@ class ItemControllerTest {
                     .title("제목" + i)
                     .description("내용" + i)
                     .minPriceWanted(i)
-                    .writer("작성자" + i)
-                    .password("비밀번호" + i)
+                    .user(user)
                     .build());
         }
 
@@ -204,21 +228,23 @@ class ItemControllerTest {
     void updateItemApi() throws Exception {
         // given
         ItemCreateRequestDto dto = createRequestDto();
-        Item savedItem = itemRepository.save(dto.toEntity());
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
         ItemUpdateRequestDto updateDto = ItemUpdateRequestDto.builder()
                 .title("수정 완료")
                 .minPriceWanted(20_000)
                 .description("수정 완료")
-                .writer(dto.getWriter())
-                .password(dto.getPassword())
                 .build();
 
         String url = "http://localhost:8080/items/{itemId}";
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
         mvc.perform(put(url, savedItem.getId())
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication)
                 .content(new ObjectMapper().writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
                 .andDo(document("/items-update",
@@ -242,18 +268,16 @@ class ItemControllerTest {
     void deleteItemApi() throws Exception {
         // given
         ItemCreateRequestDto dto = createRequestDto();
-        Item savedItem = itemRepository.save(dto.toEntity());
-
-        ItemDeleteRequestDto deleteDto = ItemDeleteRequestDto.builder()
-                .writer(dto.getWriter())
-                .password(dto.getPassword())
-                .build();
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
         String url = "http://localhost:8080/items/{itemId}";
+
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
         mvc.perform(delete(url, savedItem.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(deleteDto)))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("/items-delete",
                         requestFields(

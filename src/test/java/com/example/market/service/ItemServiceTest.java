@@ -1,13 +1,15 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.Role;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.item.request.ItemCreateRequestDto;
-import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.dto.item.response.ItemListResponseDto;
 import com.example.market.dto.item.response.ItemOneResponseDto;
 import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,9 +32,24 @@ class ItemServiceTest {
     @Autowired
     ItemRepository itemRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User user;
+    User anotherUser;
     @BeforeEach
     void setUp() {
         itemRepository.deleteAll();
+        user = userRepository.save(User.builder()
+                .username("아이디")
+                .password("비밀번호")
+                .role(Role.USER)
+                .build());
+        anotherUser = userRepository.save(User.builder()
+                .username("다른아이디")
+                .password("다른비밀번호")
+                .role(Role.USER)
+                .build());
     }
 
     @AfterEach
@@ -49,11 +66,10 @@ class ItemServiceTest {
                 .title("제목1")
                 .description("내용1")
                 .minPriceWanted(10_000)
-                .writer("작성자1")
-                .password("비밀번호1")
                 .build();
 
-        itemService.create(dto);
+        itemService.create(dto, user.getId());
+
         // when
         List<Item> all = itemRepository.findAll();
 
@@ -86,11 +102,9 @@ class ItemServiceTest {
                 .title("제목1")
                 .description("내용1")
                 .minPriceWanted(10_000)
-                .writer("작성자1")
-                .password("비밀번호1")
                 .build();
 
-        Item save = itemRepository.save(dto.toEntity());
+        Item save = itemRepository.save(dto.toEntity(user));
 
         // when
         ItemOneResponseDto itemOneResponseDto = itemService.readItemOne(save.getId());
@@ -113,25 +127,21 @@ class ItemServiceTest {
         // given
         ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
                 .title("새로운 제목")
-                .writer("새로운 작성자")
                 .minPriceWanted(10_000)
                 .description("새로운 내용")
-                .password("새로운 비밀번호")
                 .build();
 
-        Item savedItem = itemRepository.save(dto.toEntity());
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
         ItemUpdateRequestDto updateDto = ItemUpdateRequestDto.builder()
                 .title("수정된 제목")
-                .writer("새로운 작성자")
                 .minPriceWanted(20_000)
                 .description("수정된 내용")
-                .password("새로운 비밀번호")
                 .build();
 
 
         // when
-        itemService.updateItem(savedItem.getId(), updateDto);
+        itemService.updateItem(savedItem.getId(), updateDto, user.getId());
         Item updateItem = itemRepository.findById(savedItem.getId()).get();
 
         // then
@@ -144,40 +154,25 @@ class ItemServiceTest {
         // given
         ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
                 .title("새로운 제목")
-                .writer("새로운 작성자")
                 .minPriceWanted(10_000)
                 .description("새로운 내용")
-                .password("새로운 비밀번호")
                 .build();
 
-        Item savedItem = itemRepository.save(dto.toEntity());
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
         ItemUpdateRequestDto notSameWriterUpdateDto = ItemUpdateRequestDto.builder()
                 .title("수정된 제목")
-                .writer("다른 작성자")
                 .minPriceWanted(20_000)
                 .description("수정된 내용")
-                .password("새로운 비밀번호")
-                .build();
-
-        ItemUpdateRequestDto notSamePasswordUpdateDto = ItemUpdateRequestDto.builder()
-                .title("수정된 제목")
-                .writer("새로운 작성자")
-                .minPriceWanted(20_000)
-                .description("수정된 내용")
-                .password("다른 비밀번호")
                 .build();
 
         // when
 
         // then
         assertThatThrownBy(() -> {
-            itemService.updateItem(savedItem.getId(), notSameWriterUpdateDto);
+            itemService.updateItem(savedItem.getId(), notSameWriterUpdateDto, anotherUser.getId());
         }).isInstanceOf(MarketAppException.class);
 
-        assertThatThrownBy(() -> {
-            itemService.updateItem(savedItem.getId(), notSamePasswordUpdateDto);
-        }).isInstanceOf(MarketAppException.class);
     }
 
     @DisplayName("아이템 삭제 기능 테스트")
@@ -186,21 +181,15 @@ class ItemServiceTest {
         // given
         ItemCreateRequestDto dto = ItemCreateRequestDto.builder()
                 .title("새로운 제목")
-                .writer("새로운 작성자")
                 .minPriceWanted(10_000)
                 .description("새로운 내용")
-                .password("새로운 비밀번호")
                 .build();
 
-        Item savedItem = itemRepository.save(dto.toEntity());
+        Item savedItem = itemRepository.save(dto.toEntity(user));
 
-        ItemDeleteRequestDto deleteDto = ItemDeleteRequestDto.builder()
-                .writer("새로운 작성자")
-                .password("새로운 비밀번호")
-                .build();
 
         // when
-        itemService.deleteItem(savedItem.getId(), deleteDto);
+        itemService.deleteItem(savedItem.getId(), user.getId());
 
         // then
         List<Item> all = itemRepository.findAll();
@@ -213,11 +202,9 @@ class ItemServiceTest {
                     .title("제목" + i)
                     .description("내용" + i)
                     .minPriceWanted(i)
-                    .writer("작성자" + i)
-                    .password("비밀번호" + i)
                     .build();
 
-            itemService.create(dto);
+            itemService.create(dto, user.getId());
         }
     }
 
