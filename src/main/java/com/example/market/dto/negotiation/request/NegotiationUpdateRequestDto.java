@@ -12,18 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class NegotiationUpdateRequestDto {
 
-    @NotBlank
-    private String writer;
-    @NotBlank
-    private String password;
     @PositiveOrZero
     private int suggestedPrice;
     private String status;
 
     @Builder
-    public NegotiationUpdateRequestDto(String writer, String password, int suggestedPrice, String status) {
-        this.writer = writer;
-        this.password = password;
+    public NegotiationUpdateRequestDto(int suggestedPrice, String status) {
         this.suggestedPrice = suggestedPrice;
         this.status = status;
     }

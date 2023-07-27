@@ -1,6 +1,8 @@
 package com.example.market.dto.negotiation.request;
 
+import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
+import com.example.market.domain.entity.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -13,26 +15,19 @@ import lombok.NoArgsConstructor;
 @Getter
 public class NegotiationCreateRequestDto {
 
-    @NotBlank
-    private String writer;
-    @NotBlank
-    private String password;
     @PositiveOrZero
     private int suggestedPrice;
 
     @Builder
-    public NegotiationCreateRequestDto(String writer, String password, int suggestedPrice) {
-        this.writer = writer;
-        this.password = password;
+    public NegotiationCreateRequestDto(int suggestedPrice) {
         this.suggestedPrice = suggestedPrice;
     }
 
-    public Negotiation toEntity(Long itemId) {
+    public Negotiation toEntity(Item item, User user) {
         return Negotiation.builder()
-                .writer(writer)
-                .password(password)
+                .item(item)
+                .user(user)
                 .suggestedPrice(suggestedPrice)
-                .itemId(itemId)
                 .build();
     }
 }
