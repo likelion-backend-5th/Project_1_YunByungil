@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Table(name = "sales_item")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -28,6 +31,9 @@ public class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "item")
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Item(String title, String description, String imageUrl, int minPriceWanted, User user) {
