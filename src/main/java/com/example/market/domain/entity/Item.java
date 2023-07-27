@@ -24,30 +24,25 @@ public class Item {
     private int minPriceWanted;
     @Enumerated(EnumType.STRING)
     private ItemStatus status;
-    private String writer;
-    private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Item(String title, String description, String imageUrl, int minPriceWanted, String writer, String password) {
+    public Item(String title, String description, String imageUrl, int minPriceWanted, User user) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
         this.minPriceWanted = minPriceWanted;
         this.status = ItemStatus.SALE;
-        this.writer = writer;
-        this.password = password;
+        this.user = user;
     }
 
     public void update(ItemUpdateRequestDto dto) {
         this.title = dto.getTitle();
         this.description = dto.getDescription();
         this.minPriceWanted = dto.getMinPriceWanted();
-        this.writer = dto.getWriter();
-        this.password = dto.getPassword();
     }
 
     public void updateItemImage(String imageUrl) {
