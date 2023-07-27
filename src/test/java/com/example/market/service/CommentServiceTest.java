@@ -2,16 +2,19 @@ package com.example.market.service;
 
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.Role;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
-import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
 import com.example.market.exception.MarketAppException;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,37 @@ class CommentServiceTest {
     @Autowired
     ItemRepository itemRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User user;
+    User anotherUser;
+    Item item;
+
+    @BeforeEach
+    void setUp() {
+        commentRepository.deleteAll();
+
+        user = userRepository.save(User.builder()
+                .username("아이디")
+                .password("비밀번호")
+                .role(Role.USER)
+                .build());
+        anotherUser = userRepository.save(User.builder()
+                .username("다른아이디")
+                .password("다른비밀번호")
+                .role(Role.USER)
+                .build());
+
+        item = itemRepository.save(Item.builder()
+                .title("제목")
+                .description("설명")
+                .minPriceWanted(10_000)
+                .imageUrl("사진")
+                .user(user)
+                .build());
+    }
+
     @AfterEach
     void end() {
         itemRepository.deleteAll();
@@ -46,23 +80,17 @@ class CommentServiceTest {
     @Test
     void createComment() {
         // given
-        Long itemId = createItem();
-
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
-        commentService.create(itemId, dto);
+        commentService.create(item.getId(), dto, user.getId());
 
         // when
         List<Comment> all = commentRepository.findAll();
         Comment comment = all.get(0);
 
         // then
-        assertThat(comment.getWriter()).isEqualTo(dto.getWriter());
-        assertThat(comment.getPassword()).isEqualTo(dto.getPassword());
         assertThat(comment.getContent()).isEqualTo(dto.getContent());
     }
     
@@ -70,17 +98,15 @@ class CommentServiceTest {
     @Test
     void notExistItemException() {
         // given
-        Long itemId = 3L;
+        Long itemId = 9999L;
 
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
         // when
         assertThatThrownBy(() -> {
-            commentService.create(itemId, dto);
+            commentService.create(itemId, dto, user.getId());
         }).isInstanceOf(MarketAppException.class);
         
         // then
@@ -91,20 +117,16 @@ class CommentServiceTest {
     @Test
     void readCommentList() {
         // given
-        Long itemId = createItem();
-
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
         for (int i = 0; i < 6; i++) {
-            commentService.create(itemId, dto);
+            commentService.create(item.getId(), dto, user.getId());
         }
 
         // when
-        Page<CommentListResponseDto> commentListResponseDto = commentService.readCommentList(itemId, 0, 5);
+        Page<CommentListResponseDto> commentListResponseDto = commentService.readCommentList(item.getId(), 0, 5);
 
         // then
         assertThat(commentListResponseDto.getTotalElements()).isEqualTo(6L);
@@ -129,19 +151,15 @@ class CommentServiceTest {
     @Test
     void updateComment() {
         // given
-        Long itemId = createItem();
-
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
         CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("수정완료")
                 .build();
 
 
         // when
-        commentService.updateComment(itemId, commentId, dto);
+        commentService.updateComment(item.getId(), commentId, dto, user.getId());
 
         // then
         Comment comment = commentRepository.findById(commentId).get();
@@ -150,76 +168,33 @@ class CommentServiceTest {
 
     }
 
-    @DisplayName("댓글 수정할 때 itemId 값과 comment.getItemId 값이 다를 때 예외 발생")
-    @Test
-    void validateItemIdMatchForUpdate() {
-        // given
-        Long itemId = createItem();
-
-        Long commentId = createComment(itemId);
-
-        CommentUpdateRequestDto dto = CommentUpdateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
-                .content("수정완료")
-                .build();
-
-        // when
-        assertThatThrownBy(() -> {
-            commentService.updateComment(itemId + 120, commentId, dto);
-        }).isInstanceOf(MarketAppException.class);
-
-        // then
-    }
-
-    @DisplayName("댓글 수정할 때 Writer Or Password 다를 때 예외 발생")
+    @DisplayName("댓글 수정할 때 작성자 다를 때 예외 발생")
     @Test
     void checkWriterAndPasswordForUpdate() {
         // given
-        Long itemId = createItem();
-
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
         CommentUpdateRequestDto dontMatchWriter = CommentUpdateRequestDto.builder()
-                .writer("기존 작성자랑 값이 다름")
-                .password("비밀번호")
                 .content("수정완료")
                 .build();
 
-        CommentUpdateRequestDto dontMatchPassword = CommentUpdateRequestDto.builder()
-                .writer("작성자")
-                .password("기존 비밀번호랑 값이 다름")
-                .content("수정완료")
-                .build();
 
         // when
         assertThatThrownBy(() -> { // 1. 작성자가 다른 경우
-            commentService.updateComment(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(MarketAppException.class);
-
-        assertThatThrownBy(() -> { // 2. 패스워드가 다른 경우
-            commentService.updateComment(itemId, commentId, dontMatchPassword);
+            commentService.updateComment(item.getId(), commentId, dontMatchWriter, anotherUser.getId());
         }).isInstanceOf(MarketAppException.class);
 
         // then
-
-
     }
 
     @DisplayName("댓글 삭제 기능 테스트")
     @Test
     void deleteComment() {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
-
-        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
-                .build();
+        Long commentId = createCommentMethod();
 
         // when
-        commentService.deleteComment(itemId, commentId, deleteDto);
+        commentService.deleteComment(item.getId(), commentId, user.getId());
 
         // then
         List<Comment> all = commentRepository.findAll();
@@ -227,134 +202,64 @@ class CommentServiceTest {
 
     }
 
-    @DisplayName("댓글 삭제할 때 itemId 값과 comment.getItemId 값이 다를 때 예외 발생")
-    @Test
-    void validateItemIdMatchForDelete() {
-        // given
-        Long itemId = createItem();
-        Long notSameItemId = itemId + 121;
-
-        Long commentId = createComment(itemId);
-
-        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
-                .build();
-
-        // when
-        assertThatThrownBy(() -> {
-            commentService.deleteComment(notSameItemId, commentId, deleteDto);
-        }).isInstanceOf(MarketAppException.class);
-
-        // then
-    }
-
-    @DisplayName("댓글 수정할 때 Writer Or Password 다를 때 예외 발생")
+    @DisplayName("댓글 삭제할 때 내가 작성한 댓글이 아닐 때 예외 발생")
     @Test
     void checkWriterAndPasswordForDelete() {
         // given
-        Long itemId = createItem();
-
-        Long commentId = createComment(itemId);
-
-        CommentDeleteRequestDto dontMatchWriter = CommentDeleteRequestDto.builder()
-                .writer("기존 작성자랑 값이 다름")
-                .password("비밀번호")
-                .build();
-
-        CommentDeleteRequestDto dontMatchPassword = CommentDeleteRequestDto.builder()
-                .writer("작성자")
-                .password("기존 비밀번호랑 값이 다름")
-                .build();
+        Long commentId = createCommentMethod();
 
         // when
         assertThatThrownBy(() -> {
-            commentService.deleteComment(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(MarketAppException.class);
-
-        assertThatThrownBy(() -> {
-            commentService.deleteComment(itemId, commentId, dontMatchPassword);
+            commentService.deleteComment(item.getId(), commentId, anotherUser.getId());
         }).isInstanceOf(MarketAppException.class);
 
         // then
-
     }
 
     @DisplayName("댓글에 답변 달기 기능 테스트")
     @Test
     void updateCommentReply() {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
         CommentReplyRequestDto replyDto = CommentReplyRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .reply("답변작성완료")
                 .build();
 
         // when
-        commentService.updateCommentReply(itemId, commentId, replyDto);
+        commentService.updateCommentReply(item.getId(), commentId, replyDto, user.getId());
 
         // then
         Comment findComment = commentRepository.findById(commentId).get();
         assertThat(findComment.getReply()).isEqualTo(replyDto.getReply());
-
     }
 
-    @DisplayName("답변 기능 예외 테스트 - 작성자 or 비밀번호 다를 때")
+    @DisplayName("답변 기능(reply) 글 작성 본인이 아닐 경우 예외 발생")
     @Test
     void checkWriterAndPasswordForReply() {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
-        CommentReplyRequestDto dontMatchWriter = CommentReplyRequestDto.builder()
-                .writer("다른 아이디")
-                .password("비밀번호")
-                .reply("답변수정완료")
-                .build();
-
-        CommentReplyRequestDto dontMatchPassword = CommentReplyRequestDto.builder()
-                .writer("작성자")
-                .password("다른 비밀번호")
+        CommentReplyRequestDto replyDto = CommentReplyRequestDto.builder()
                 .reply("답변수정완료")
                 .build();
 
         // when
         assertThatThrownBy(() -> {
-            commentService.updateCommentReply(itemId, commentId, dontMatchWriter);
-        }).isInstanceOf(MarketAppException.class);
-
-        assertThatThrownBy(() -> {
-            commentService.updateCommentReply(itemId, commentId, dontMatchPassword);
+            commentService.updateCommentReply(item.getId(), commentId, replyDto, anotherUser.getId());
         }).isInstanceOf(MarketAppException.class);
 
         // then
-
     }
 
-    private Long createComment(Long itemId) {
+    private Long createCommentMethod() {
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
-        Comment comment = commentRepository.save(dto.toEntity(itemId));
+        Comment comment = commentRepository.save(dto.toEntity(item, user));
 
         return comment.getId();
     }
 
-    private Long createItem() {
-        Item item = itemRepository.save(Item.builder()
-                .title("제목")
-                .minPriceWanted(10_000)
-                .description("내용")
-                .writer("작성자")
-                .password("비밀번호")
-                .build());
-
-        return item.getId();
-    }
 }
