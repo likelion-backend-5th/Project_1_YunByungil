@@ -1,6 +1,7 @@
 package com.example.market.domain.entity;
 
 import com.example.market.domain.entity.enums.NegotiationStatus;
+import com.example.market.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,20 +17,24 @@ public class Negotiation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long itemId;
     private int suggestedPrice;
     @Enumerated(EnumType.STRING)
     private NegotiationStatus status;
-    private String writer;
-    private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder
-    public Negotiation(Long itemId, int suggestedPrice, String writer, String password) {
-        this.itemId = itemId;
+    public Negotiation(Item item, User user, int suggestedPrice) {
+        this.item = item;
         this.suggestedPrice = suggestedPrice;
         this.status = NegotiationStatus.SUGGEST;
-        this.writer = writer;
-        this.password = password;
+        this.user = user;
     }
 
     public void updateNegotiation(int suggestedPrice) {
