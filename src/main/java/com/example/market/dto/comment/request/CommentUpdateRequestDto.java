@@ -12,16 +12,10 @@ import lombok.NoArgsConstructor;
 public class CommentUpdateRequestDto {
 
     @NotBlank
-    private String writer;
-    @NotBlank
-    private String password;
-    @NotBlank
     private String content;
 
     @Builder
-    public CommentUpdateRequestDto(String writer, String password, String content) {
-        this.writer = writer;
-        this.password = password;
+    public CommentUpdateRequestDto(String content) {
         this.content = content;
     }
 
