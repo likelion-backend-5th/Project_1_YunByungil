@@ -35,6 +35,9 @@ public class Item {
     @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item")
+    private List<Negotiation> negotiations = new ArrayList<>();
+
     @Builder
     public Item(String title, String description, String imageUrl, int minPriceWanted, User user) {
         this.title = title;
