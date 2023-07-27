@@ -1,6 +1,8 @@
 package com.example.market.dto.comment.request;
 
 import com.example.market.domain.entity.Comment;
+import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -13,24 +15,17 @@ import lombok.NoArgsConstructor;
 public class CommentCreateRequestDto {
 
     @NotBlank
-    private String writer;
-    @NotBlank
-    private String password;
-    @NotBlank
     private String content;
 
     @Builder
-    public CommentCreateRequestDto(String writer, String password, String content) {
-        this.writer = writer;
-        this.password = password;
+    public CommentCreateRequestDto(String content) {
         this.content = content;
     }
 
-    public Comment toEntity(Long itemId) {
+    public Comment toEntity(Item item, User user) {
         return Comment.builder()
-                .itemId(itemId)
-                .writer(writer)
-                .password(password)
+                .item(item)
+                .user(user)
                 .content(content)
                 .build();
     }
