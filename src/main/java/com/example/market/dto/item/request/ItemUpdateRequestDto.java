@@ -1,6 +1,7 @@
 package com.example.market.dto.item.request;
 
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -19,27 +20,20 @@ public class ItemUpdateRequestDto {
     private String description;
     @PositiveOrZero
     private int minPriceWanted;
-    @NotBlank
-    private String writer;
-    @NotBlank
-    private String password;
 
     @Builder
-    public ItemUpdateRequestDto(String title, String description, int minPriceWanted, String writer, String password) {
+    public ItemUpdateRequestDto(String title, String description, int minPriceWanted) {
         this.title = title;
         this.description = description;
         this.minPriceWanted = minPriceWanted;
-        this.writer = writer;
-        this.password = password;
     }
 
-    public Item toEntity() {
+    public Item toEntity(User user) {
         return Item.builder()
                 .title(title)
                 .description(description)
                 .minPriceWanted(minPriceWanted)
-                .writer(writer)
-                .password(password)
+                .user(user)
                 .build();
     }
 }
