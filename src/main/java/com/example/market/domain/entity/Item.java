@@ -1,6 +1,7 @@
 package com.example.market.domain.entity;
 
 import com.example.market.domain.entity.enums.ItemStatus;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -25,6 +26,10 @@ public class Item {
     private ItemStatus status;
     private String writer;
     private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder
     public Item(String title, String description, String imageUrl, int minPriceWanted, String writer, String password) {
