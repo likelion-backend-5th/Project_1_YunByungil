@@ -1,13 +1,14 @@
 package com.example.market.service;
 
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.item.request.ItemCreateRequestDto;
-import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.dto.item.response.ItemListResponseDto;
 import com.example.market.dto.item.response.ItemOneResponseDto;
 import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,10 +34,13 @@ import static com.example.market.exception.ErrorCode.*;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public void create(ItemCreateRequestDto dto) {
-        itemRepository.save(dto.toEntity());
+    public void create(ItemCreateRequestDto dto, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        itemRepository.save(dto.toEntity(user));
     }
 
     public Page<ItemListResponseDto> readItemList(int page, int limit) {
@@ -48,42 +52,49 @@ public class ItemService {
         return result;
     }
 
-    public ItemOneResponseDto readItemOne(Long id) {
-        Item item = itemRepository.findById(id)
+    public ItemOneResponseDto readItemOne(Long itemId) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         return new ItemOneResponseDto(item);
     }
 
     @Transactional
-    public void updateItem(Long id, ItemUpdateRequestDto dto) {
-        Item item = itemRepository.findById(id)
+    public void updateItem(Long itemId, ItemUpdateRequestDto dto, Long userId) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
-        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (item.getUser().getId() != user.getId()) {
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
+        }
         item.update(dto);
     }
 
     @Transactional
-    public void deleteItem(Long id, ItemDeleteRequestDto dto) {
-        Item item = itemRepository.findById(id)
+    public void deleteItem(Long itemId, Long userId) {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
-        checkWriterAndPassword(dto.getWriter(), dto.getPassword(), item);
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (item.getUser().getId() != user.getId()) {
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
+        }
         itemRepository.delete(item);
     }
 
     @Transactional
-    public void updateItemImage(Long id, MultipartFile image, String writer, String password) throws IOException {
-        Item item = itemRepository.findById(id)
+    public void updateItemImage(Long itemId, MultipartFile image, String writer, String password) throws IOException {
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
-        checkWriterAndPassword(writer, password, item);
+        // TODO: 해결해야 됨
+//        checkWriterAndPassword(writer, password, item);
 
         // 파일 어디에 업로드? -> media/{userId}/profile.{파일 확장자}
-        String profileDir = String.format("media/%d/", id);
+        String profileDir = String.format("media/%d/", itemId);
         try {
             // 폴더만 만드는 과정
             Files.createDirectories(Path.of(profileDir));
@@ -115,20 +126,7 @@ public class ItemService {
 
 
         // itemUpdate
-        item.updateItemImage(String.format("/static/%d/%s", id, profileFilename));
-
-
-
-    }
-
-    private void checkWriterAndPassword(String writer, String password , Item item) {
-        if (!item.getWriter().equals(writer)) {
-            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
-        }
-
-        if (!item.getPassword().equals(password)) {
-            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
-        }
+        item.updateItemImage(String.format("/static/%d/%s", itemId, profileFilename));
     }
 
 }
