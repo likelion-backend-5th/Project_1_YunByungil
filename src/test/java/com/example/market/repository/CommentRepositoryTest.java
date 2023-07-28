@@ -1,7 +1,11 @@
 package com.example.market.repository;
 
 import com.example.market.domain.entity.Comment;
+import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.Role;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
+import com.example.market.repository.user.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +28,33 @@ class CommentRepositoryTest {
     @Autowired
     CommentRepository commentRepository;
 
+    @Autowired
+    ItemRepository itemRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    Item item;
+
+    User user;
+
+    @BeforeEach
+    void setUp() {
+        commentRepository.deleteAll();
+
+        user = userRepository.save(User.builder()
+                .username("아이디")
+                .password("비밀번호")
+                .role(Role.USER)
+                .build());
+        item = itemRepository.save(Item.builder()
+                .title("제목")
+                .description("설명")
+                .minPriceWanted(10_000)
+                .imageUrl("사진")
+                .user(user)
+                .build());
+    }
     @AfterEach
     void end() {
         commentRepository.deleteAll();
@@ -34,9 +65,8 @@ class CommentRepositoryTest {
     void createAndFindTest() {
         // given
         Comment comment = commentRepository.save(Comment.builder()
-                .itemId(1L)
-                .writer("작성자")
-                .password("비밀번호")
+                .item(item)
+                .user(user)
                 .content("댓글내용")
                 .reply("답변대기중")
                 .build());
@@ -53,20 +83,18 @@ class CommentRepositoryTest {
     void testFindAllByItemId() {
         // given
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("댓글 작성자")
-                .password("댓글 비번")
                 .content("하잉")
                 .build();
 
         Comment comment = null;
         for (int i = 0; i < 20; i++) {
-            comment = commentRepository.save(dto.toEntity(1L));
+            comment = commentRepository.save(dto.toEntity(item, user));
         }
 
         Pageable pageable = PageRequest.of(0, 5);
 
         // when
-        Page<Comment> findCommentByAllItemId = commentRepository.findAllByItemId(comment.getItemId(), pageable);
+        Page<Comment> findCommentByAllItemId = commentRepository.findAllByItemId(comment.getItem().getId(), pageable);
 
         // then
         assertThat(findCommentByAllItemId.hasNext()).isTrue();

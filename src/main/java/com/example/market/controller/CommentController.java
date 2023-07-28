@@ -1,7 +1,6 @@
 package com.example.market.controller;
 
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
-import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.dto.comment.response.CommentListResponseDto;
@@ -11,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.market.common.SystemMessage.*;
@@ -24,8 +24,10 @@ public class CommentController {
 
     @PostMapping("/items/{itemId}/comments")
     public CommentResponseDto create(@PathVariable Long itemId,
-                                     @Valid @RequestBody CommentCreateRequestDto dto) {
-        commentService.create(itemId, dto);
+                                     @Valid @RequestBody CommentCreateRequestDto dto,
+                                     Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        commentService.create(itemId, dto, userId);
 
         return new CommentResponseDto(REGISTER_COMMENT);
     }
@@ -41,8 +43,10 @@ public class CommentController {
     @PutMapping("/items/{itemId}/comments/{commentId}")
     public CommentResponseDto updateComment(@PathVariable Long itemId,
                                             @PathVariable Long commentId,
-                                            @Valid @RequestBody CommentUpdateRequestDto dto) {
-        commentService.updateComment(itemId, commentId, dto);
+                                            @Valid @RequestBody CommentUpdateRequestDto dto,
+                                            Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        commentService.updateComment(itemId, commentId, dto, userId);
 
         return new CommentResponseDto(UPDATE_COMMENT);
     }
@@ -50,8 +54,9 @@ public class CommentController {
     @DeleteMapping("/items/{itemId}/comments/{commentId}")
     public CommentResponseDto deleteComment(@PathVariable Long itemId,
                                             @PathVariable Long commentId,
-                                            @Valid @RequestBody CommentDeleteRequestDto dto) {
-        commentService.deleteComment(itemId, commentId, dto);
+                                            Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        commentService.deleteComment(itemId, commentId, userId);
 
         return new CommentResponseDto(DELETE_COMMENT);
     }
@@ -60,8 +65,10 @@ public class CommentController {
     @PutMapping("/items/{itemId}/comments/{commentId}/reply")
     public CommentResponseDto updateCommentReply(@PathVariable Long itemId,
                                                  @PathVariable Long commentId,
-                                                 @Valid @RequestBody CommentReplyRequestDto replyDto) {
-        commentService.updateCommentReply(itemId, commentId, replyDto);
+                                                 @Valid @RequestBody CommentReplyRequestDto replyDto,
+                                                 Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        commentService.updateCommentReply(itemId, commentId, replyDto, userId);
 
         return new CommentResponseDto(REGISTER_REPLY);
     }

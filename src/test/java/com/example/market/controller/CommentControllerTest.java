@@ -2,27 +2,35 @@ package com.example.market.controller;
 
 import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
+import com.example.market.domain.entity.enums.Role;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.comment.request.CommentCreateRequestDto;
-import com.example.market.dto.comment.request.CommentDeleteRequestDto;
 import com.example.market.dto.comment.request.CommentReplyRequestDto;
 import com.example.market.dto.comment.request.CommentUpdateRequestDto;
 import com.example.market.repository.CommentRepository;
 import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import com.example.market.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,8 +61,16 @@ class CommentControllerTest {
     @Autowired
     ItemRepository itemRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    User user;
+    Item item;
+
     @BeforeEach
     void setUp(RestDocumentationContextProvider restDocumentation) {
+        commentRepository.deleteAll();
+
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(documentationConfiguration(restDocumentation)
@@ -62,25 +78,43 @@ class CommentControllerTest {
                 .withResponseDefaults(prettyPrint())
                 .withRequestDefaults(prettyPrint()))
                 .build();
+
+        user = userRepository.save(User.builder()
+                .username("아이디")
+                .password("비밀번호")
+                .role(Role.USER)
+                .build());
+
+        item = itemRepository.save(Item.builder()
+                .title("제목")
+                .description("설명")
+                .minPriceWanted(10_000)
+                .imageUrl("사진")
+                .user(user)
+                .build());
+
+        SecurityContext context1 = SecurityContextHolder.getContext();
+        context1.setAuthentication(new UsernamePasswordAuthenticationToken(user.getId(), user.getPassword(), new ArrayList<>()));
     }
 
     @DisplayName("댓글 생성 API 테스트")
     @Test
     void createComment() throws Exception {
         // given
-        Long itemId = createItem();
 
         CommentCreateRequestDto createDto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
         String url = "http://localhost:8080/items/{itemId}/comments";
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
-        mvc.perform(post(url, itemId)
+        mvc.perform(post(url, item.getId())
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication)
                 .content(new ObjectMapper().writeValueAsString(createDto)))
                 .andExpect(status().isOk())
                 .andDo(document("/comments",
@@ -102,20 +136,21 @@ class CommentControllerTest {
     @Test
     void updateComment() throws Exception {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
         CommentUpdateRequestDto updateDto = CommentUpdateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("수정내용")
                 .build();
 
         String url = "http://localhost:8080/items/{itemId}/comments/{commentId}";
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
-        mvc.perform(put(url, itemId, commentId)
+        mvc.perform(put(url, item.getId(), commentId)
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication)
                 .content(new ObjectMapper().writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
                 .andDo(document("/comments-update",
@@ -137,20 +172,17 @@ class CommentControllerTest {
     @Test
     void deleteComment() throws Exception {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
-
-        CommentDeleteRequestDto deleteDto = CommentDeleteRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
-                .build();
+        Long commentId = createCommentMethod();
 
         String url = "http://localhost:8080/items/{itemId}/comments/{commentId}";
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
-        mvc.perform(delete(url, itemId, commentId)
+        mvc.perform(delete(url, item.getId(), commentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(deleteDto)))
+                .principal(authentication))
                 .andExpect(status().isOk())
                 .andDo(document("/comments-delete",
                         requestFields(
@@ -170,20 +202,21 @@ class CommentControllerTest {
     @Test
     void updateCommentReply() throws Exception {
         // given
-        Long itemId = createItem();
-        Long commentId = createComment(itemId);
+        Long commentId = createCommentMethod();
 
         CommentReplyRequestDto replyDto = CommentReplyRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .reply("답글내용")
                 .build();
 
         String url = "http://localhost:8080/items/{itemId}/comments/{commentId}/reply";
 
+        Authentication authentication = Mockito.mock(Authentication.class);
+        Mockito.when(authentication.getName()).thenReturn("" + user.getId());
+
         // when
-        mvc.perform(put(url, itemId, commentId)
+        mvc.perform(put(url, item.getId(), commentId)
                 .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication)
                 .content(new ObjectMapper().writeValueAsString(replyDto)))
                 .andExpect(status().isOk())
                 .andDo(document("/comments-reply",
@@ -205,20 +238,18 @@ class CommentControllerTest {
     @Test
     void readAllComment() throws Exception {
         // given
-        Long itemId = createItem();
         for (int i = 0; i < 6; i++) {
             CommentCreateRequestDto createDto = CommentCreateRequestDto.builder()
-                    .writer("작성자" + i)
-                    .password("비밀번호" + i)
                     .content("내용" + i)
                     .build();
             
-            commentService.create(itemId, createDto);
+            commentService.create(item.getId(), createDto, user.getId());
         }
 
         String url = "http://localhost:8080/items/{itemId}/comments";
+
         // when
-        mvc.perform(get(url, itemId)
+        mvc.perform(get(url, item.getId())
                 .param("page", "0")
                 .param("limit", "6")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -234,17 +265,14 @@ class CommentControllerTest {
 
 
         // then
-        
     }
 
-    private Long createComment(Long itemId) {
+    private Long createCommentMethod() {
         CommentCreateRequestDto dto = CommentCreateRequestDto.builder()
-                .writer("작성자")
-                .password("비밀번호")
                 .content("내용")
                 .build();
 
-        Comment comment = commentRepository.save(dto.toEntity(itemId));
+        Comment comment = commentRepository.save(dto.toEntity(item, user));
 
         return comment.getId();
     }
@@ -253,8 +281,6 @@ class CommentControllerTest {
         Item item = itemRepository.save(Item.builder()
                 .title("제목")
                 .description("내용")
-                .writer("작성자")
-                .password("비밀번호")
                 .minPriceWanted(10_000)
                 .build());
 
