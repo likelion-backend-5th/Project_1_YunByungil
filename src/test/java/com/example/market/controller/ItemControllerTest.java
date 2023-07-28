@@ -114,10 +114,7 @@ class ItemControllerTest {
                         requestFields(
                                 fieldWithPath("title").description("제목"),
                                 fieldWithPath("description").description("내용"),
-                                fieldWithPath("minPriceWanted").description("최소가격"),
-                                fieldWithPath("writer").description("작성자"),
-                                fieldWithPath("password").description("비밀번호")
-
+                                fieldWithPath("minPriceWanted").description("최소가격")
                         )
                 ));
 
@@ -254,9 +251,7 @@ class ItemControllerTest {
                         requestFields(
                                 fieldWithPath("title").description("수정할 제목"),
                                 fieldWithPath("description").description("수정할 내용"),
-                                fieldWithPath("minPriceWanted").description("수정할 금액"),
-                                fieldWithPath("writer").description("작성자 계정"),
-                                fieldWithPath("password").description("작성자 비밀번호")
+                                fieldWithPath("minPriceWanted").description("수정할 금액")
                         )));
 
         // then
@@ -277,13 +272,10 @@ class ItemControllerTest {
 
         // when
         mvc.perform(delete(url, savedItem.getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication))
                 .andExpect(status().isOk())
                 .andDo(document("/items-delete",
-                        requestFields(
-                                fieldWithPath("writer").description("작성자 계정"),
-                                fieldWithPath("password").description("작성자 비밀번호")
-                        ),
                         pathParameters(
                                 parameterWithName("itemId").description("ID")
                         )));

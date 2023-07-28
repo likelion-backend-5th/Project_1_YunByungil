@@ -35,7 +35,7 @@ public class Item {
     @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Negotiation> negotiations = new ArrayList<>();
 
     @Builder
