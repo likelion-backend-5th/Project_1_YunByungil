@@ -119,8 +119,6 @@ class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andDo(document("/comments",
                         requestFields(
-                                fieldWithPath("writer").description("작성자"),
-                                fieldWithPath("password").description("비밀번호"),
                                 fieldWithPath("content").description("내용")
                         ),
                         pathParameters(
@@ -155,8 +153,6 @@ class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andDo(document("/comments-update",
                         requestFields(
-                                fieldWithPath("writer").description("댓글 작성자"),
-                                fieldWithPath("password").description("댓글 작성자 비밀번호"),
                                 fieldWithPath("content").description("수정 내용")
                         ),
                         pathParameters(
@@ -185,10 +181,6 @@ class CommentControllerTest {
                 .principal(authentication))
                 .andExpect(status().isOk())
                 .andDo(document("/comments-delete",
-                        requestFields(
-                                fieldWithPath("writer").description("작성자"),
-                                fieldWithPath("password").description("비밀번호")
-                        ),
                         pathParameters(
                                 parameterWithName("itemId").description("아이템 ID"),
                                 parameterWithName("commentId").description("댓글 ID")
@@ -221,8 +213,6 @@ class CommentControllerTest {
                 .andExpect(status().isOk())
                 .andDo(document("/comments-reply",
                         requestFields(
-                                fieldWithPath("writer").description("아이템 글 작성자"),
-                                fieldWithPath("password").description("아이템 글 비밀번호"),
                                 fieldWithPath("reply").description("답글내용")
                         ),
                         pathParameters(
