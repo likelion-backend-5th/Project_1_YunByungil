@@ -1,7 +1,6 @@
 package com.example.market.controller;
 
 import com.example.market.dto.item.request.ItemCreateRequestDto;
-import com.example.market.dto.item.request.ItemDeleteRequestDto;
 import com.example.market.dto.item.request.ItemUpdateRequestDto;
 import com.example.market.dto.item.response.ItemListResponseDto;
 import com.example.market.dto.item.response.ItemOneResponseDto;
@@ -11,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,8 +25,10 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping("/items")
-    public ResponseEntity<ItemResponseDto> create(@Valid @RequestBody ItemCreateRequestDto dto) {
-        itemService.create(dto);
+    public ResponseEntity<ItemResponseDto> create(@Valid @RequestBody ItemCreateRequestDto dto,
+                                                  Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        itemService.create(dto, userId);
 
         ItemResponseDto responseDto = new ItemResponseDto(REGISTER_ITEM);
         return ResponseEntity.ok().body(responseDto);
@@ -50,16 +52,19 @@ public class ItemController {
 
     @PutMapping("/items/{itemId}")
     public ItemResponseDto updateItem(@PathVariable Long itemId,
-                                      @Valid @RequestBody ItemUpdateRequestDto dto) {
-        itemService.updateItem(itemId, dto);
+                                      @Valid @RequestBody ItemUpdateRequestDto dto,
+                                      Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        itemService.updateItem(itemId, dto, userId);
 
         return new ItemResponseDto(UPDATE_ITEM);
     }
 
     @DeleteMapping("/items/{itemId}")
     public ItemResponseDto deleteItem(@PathVariable Long itemId,
-                                      @Valid @RequestBody ItemDeleteRequestDto dto) {
-        itemService.deleteItem(itemId, dto);
+                                      Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        itemService.deleteItem(itemId, userId);
         return new ItemResponseDto(DELETE_ITEM);
     }
 
