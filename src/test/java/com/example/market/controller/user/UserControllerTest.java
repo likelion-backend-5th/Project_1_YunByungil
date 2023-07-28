@@ -1,9 +1,15 @@
 package com.example.market.controller.user;
 
+import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.user.Address;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.user.request.UserCreateRequestDto;
+import com.example.market.repository.CommentRepository;
+import com.example.market.repository.ItemRepository;
+import com.example.market.repository.user.UserRepository;
 import com.example.market.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +24,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -29,24 +37,37 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith({RestDocumentationExtension.class})
 @SpringBootTest
+@Transactional
 class UserControllerTest {
 
     @Autowired
     private WebApplicationContext context;
     private MockMvc mvc;
+
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
+
+    @Autowired
+    ItemRepository itemRepository;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp(RestDocumentationContextProvider restDocumentation) {
+        userRepository.deleteAll();
+
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(documentationConfiguration(restDocumentation)
-                .operationPreprocessors()
-                .withRequestDefaults(prettyPrint())
-                .withResponseDefaults(prettyPrint()))
+                        .operationPreprocessors()
+                        .withRequestDefaults(prettyPrint())
+                        .withResponseDefaults(prettyPrint()))
                 .build();
     }
 
