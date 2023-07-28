@@ -4,12 +4,14 @@ import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.Negotiation;
 import com.example.market.domain.entity.enums.ItemStatus;
 import com.example.market.domain.entity.enums.NegotiationStatus;
+import com.example.market.domain.entity.user.User;
 import com.example.market.dto.negotiation.request.*;
 import com.example.market.dto.negotiation.response.NegotiationListResponseDto;
 import com.example.market.dto.negotiation.response.NegotiationResponseDto;
 import com.example.market.exception.MarketAppException;
 import com.example.market.repository.ItemRepository;
 import com.example.market.repository.NegotiationRepository;
+import com.example.market.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,50 +32,56 @@ public class NegotiationService {
 
     private final NegotiationRepository negotiationRepository;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Long createNegotiation(Long itemId, NegotiationCreateRequestDto dto) {
+    public Long createNegotiation(Long itemId, NegotiationCreateRequestDto dto, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        return negotiationRepository.save(dto.toEntity(itemId)).getId();
+        return negotiationRepository.save(dto.toEntity(item, user)).getId();
     }
 
-    public Page<NegotiationListResponseDto> readAllNegotiation(Long itemId,
-                                                               int page,
-                                                               int limit,
-                                                               NegotiationListRequestDto listDto) {
+    public Page<NegotiationListResponseDto> readAllNegotiation(Long itemId, int page, int limit, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         Pageable pageable = PageRequest.of(page, limit, Sort.by("id").ascending());
 
-        if (isSeller(listDto.getWriter(), listDto.getPassword(), item)) {
-            return getNegotiationListResponseDtoBySeller(itemId, pageable);
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        return getNegotiationListResponseDtoByBuyer(itemId, listDto, pageable);
+        // 1. 아이템 주인일 때 그 아이템에 대한 네고 정보를 다 불러와야 함.
+        if (item.getUser().getId() == user.getId()) {
+
+        }
+        return getNegotiationListResponseDtoBySeller(itemId, pageable);
     }
 
     @Transactional
-    public NegotiationResponseDto updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto) {
+    public NegotiationResponseDto updateNegotiation(Long itemId, Long negotiationId, NegotiationUpdateRequestDto updateDto, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
         Negotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_NEGOTIATION, NOT_FOUND_NEGOTIATION.getMessage()));
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         NegotiationStatus status = null;
         if (updateDto.getSuggestedPrice() == 0) {
             status = NegotiationStatus.findByNegotiationStatus(updateDto.getStatus());
         }
 
-        if (isSeller(updateDto.getWriter(), updateDto.getPassword(), item)) {
+        if (item.getUser().getId() == user.getId()) {
             negotiation.updateNegotiationStatus(status);
             return new NegotiationResponseDto(CHANGE_SUGGEST_STATUS);
         }
 
-        if (isBuyer(updateDto.getWriter(), updateDto.getPassword(), negotiation)) {
+        if (negotiation.getUser().getId() == user.getId()) {
             if (hasSuggestedPrice(updateDto)) {
                 reviseSuggestedPrice(updateDto, negotiation);
                 return new NegotiationResponseDto(CHANGE_SUGGEST);
@@ -90,6 +98,24 @@ public class NegotiationService {
 
         // TODO: refactor
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
+    @Transactional
+    public void deleteNegotiation(Long itemId, Long negotiationId, Long userId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
+
+        Negotiation negotiation = negotiationRepository.findById(negotiationId)
+                .orElseThrow(() -> new MarketAppException(NOT_FOUND_NEGOTIATION, NOT_FOUND_NEGOTIATION.getMessage()));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (negotiation.getUser().getId() != user.getId()) {
+            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
+        }
+
+        negotiationRepository.delete(negotiation);
     }
 
     private boolean isStatusAccept(Negotiation negotiation) {
@@ -117,29 +143,14 @@ public class NegotiationService {
         negotiation.updateNegotiation(updateDto.getSuggestedPrice());
     }
 
-    @Transactional
-    public void deleteNegotiation(Long itemId, Long negotiationId, NegotiationDeleteRequestDto deleteDto) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
-
-        Negotiation negotiation = negotiationRepository.findById(negotiationId)
-                .orElseThrow(() -> new MarketAppException(NOT_FOUND_NEGOTIATION, NOT_FOUND_NEGOTIATION.getMessage()));
-
-        if (!isBuyer(deleteDto.getWriter(), deleteDto.getPassword(), negotiation)) {
-            throw new MarketAppException(INVALID_WRITER, INVALID_WRITER.getMessage());
-        }
-
-        negotiationRepository.delete(negotiation);
-    }
-
-    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {
-        Page<Negotiation> allByItemIdAndWriterAndPassword =
-                negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
-
-        Page<NegotiationListResponseDto> negotiationListResponseDto = allByItemIdAndWriterAndPassword.map(NegotiationListResponseDto::new);
-
-        return negotiationListResponseDto;
-    }
+//    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {
+//        Page<Negotiation> allByItemIdAndWriterAndPassword =
+//                negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
+//
+//        Page<NegotiationListResponseDto> negotiationListResponseDto = allByItemIdAndWriterAndPassword.map(NegotiationListResponseDto::new);
+//
+//        return negotiationListResponseDto;
+//    }
 
     private Page<NegotiationListResponseDto> getNegotiationListResponseDtoBySeller(Long itemId, Pageable pageable) {
         Page<Negotiation> allByItemId = negotiationRepository.findAllByItemId(itemId, pageable);
@@ -148,23 +159,4 @@ public class NegotiationService {
 
         return listResponseDto;
     }
-
-    private boolean isSeller(String writer, String password, Item item) {
-        if (!item.getWriter().equals(writer) ||
-            !item.getPassword().equals(password)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isBuyer(String writer, String password, Negotiation negotiation) {
-        if (!negotiation.getWriter().equals(writer) ||
-            !negotiation.getPassword().equals(password)) {
-            return false;
-        }
-
-        return true;
-    }
-
 }

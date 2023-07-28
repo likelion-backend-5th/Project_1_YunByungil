@@ -15,11 +15,13 @@ public interface NegotiationRepository extends JpaRepository<Negotiation, Long> 
 
     boolean existsByItemId(Long itemId);
 
-    Page<Negotiation> findAllByItemId(Long itemId, Pageable pageable);
-
-    Page<Negotiation> findAllByItemIdAndWriterAndPassword(Long itemId, String writer, String password, Pageable pageable);
+    @Query("select n " +
+            "from Negotiation n " +
+            "join fetch n.item " +
+            "where n.item.id =:itemId")
+    Page<Negotiation> findAllByItemId(@Param("itemId") Long itemId, Pageable pageable);
 
     @Modifying(clearAutomatically = true)
-    @Query("update Negotiation n set n.status = 'REJECT' where n.id <> :negotiationId and n.itemId = :itemId")
+    @Query("update Negotiation n set n.status = 'REJECT' where n.id <> :negotiationId and n.item.id = :itemId")
     int updateNegotiationStatus(@Param("negotiationId") Long negotiationId, @Param("itemId") Long itemId);
 }
