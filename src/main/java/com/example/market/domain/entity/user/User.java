@@ -1,5 +1,6 @@
 package com.example.market.domain.entity.user;
 
+import com.example.market.domain.entity.Comment;
 import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.enums.Role;
 import jakarta.persistence.*;
@@ -32,8 +33,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Item> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public User(String username, String password, String phoneNumber, String email, String nickname,
