@@ -55,9 +55,11 @@ public class NegotiationService {
 
         // 1. 아이템 주인일 때 그 아이템에 대한 네고 정보를 다 불러와야 함.
         if (item.getUser().getId() == user.getId()) {
-
+            return getNegotiationListResponseDtoBySeller(itemId, pageable);
         }
-        return getNegotiationListResponseDtoBySeller(itemId, pageable);
+
+        // 2. 주인이 아니기 때문에 Buyer 기준
+        return getNegotiationListResponseDtoByBuyer(itemId, userId, pageable);
     }
 
     @Transactional
@@ -143,19 +145,18 @@ public class NegotiationService {
         negotiation.updateNegotiation(updateDto.getSuggestedPrice());
     }
 
-//    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, NegotiationListRequestDto listDto, Pageable pageable) {
-//        Page<Negotiation> allByItemIdAndWriterAndPassword =
-//                negotiationRepository.findAllByItemIdAndWriterAndPassword(itemId, listDto.getWriter(), listDto.getPassword(), pageable);
-//
-//        Page<NegotiationListResponseDto> negotiationListResponseDto = allByItemIdAndWriterAndPassword.map(NegotiationListResponseDto::new);
-//
-//        return negotiationListResponseDto;
-//    }
-
     private Page<NegotiationListResponseDto> getNegotiationListResponseDtoBySeller(Long itemId, Pageable pageable) {
         Page<Negotiation> allByItemId = negotiationRepository.findAllByItemId(itemId, pageable);
 
         Page<NegotiationListResponseDto> listResponseDto = allByItemId.map(NegotiationListResponseDto::new);
+
+        return listResponseDto;
+    }
+
+    private Page<NegotiationListResponseDto> getNegotiationListResponseDtoByBuyer(Long itemId, Long userId, Pageable pageable) {
+        Page<Negotiation> allByItemIdAndUserId = negotiationRepository.findAllByItemIdAndUserId(itemId, userId, pageable);
+
+        Page<NegotiationListResponseDto> listResponseDto = allByItemIdAndUserId.map(NegotiationListResponseDto::new);
 
         return listResponseDto;
     }
