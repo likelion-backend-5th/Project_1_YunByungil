@@ -138,6 +138,7 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.description").value(dto.getDescription()))
                 .andDo(document("/items-get-one",
                         responseFields(
+                                fieldWithPath("id").description("아이템 ID"),
                                 fieldWithPath("title").description("제목"),
                                 fieldWithPath("description").description("내용"),
                                 fieldWithPath("minPriceWanted").description("가격"),
