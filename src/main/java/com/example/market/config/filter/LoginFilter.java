@@ -18,6 +18,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,10 +55,23 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                 .sameSite("Lax")
                 .build();
         response.addHeader("Set-Cookie", accessToken.toString());
+        setTokenResponse(response, token);
     }
 
 //    @Override
 //    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
 //        super.unsuccessfulAuthentication(request, response, failed);
 //    }
+
+    private void setTokenResponse(HttpServletResponse response, String accessToken) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", accessToken);
+
+        response.getWriter().println(
+                objectMapper.writeValueAsString(
+                        TokenResponse.authResponse(HttpServletResponse.SC_OK, result)));
+    }
 }
