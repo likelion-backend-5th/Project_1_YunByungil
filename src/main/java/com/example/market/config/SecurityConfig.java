@@ -19,7 +19,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http
                 .authorizeHttpRequests(authHttp -> authHttp
-                        .requestMatchers("/join", "/views/**")
+                        .requestMatchers("/join", "/views/**", "/token/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/items/**")
                         .permitAll()
