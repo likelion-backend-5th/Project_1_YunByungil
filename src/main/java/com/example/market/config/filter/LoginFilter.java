@@ -47,14 +47,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         PrincipalUserDetails userDetails = (PrincipalUserDetails) authResult.getPrincipal();
         String token = tokenProvider.createAccessToken(userDetails.getUser());
-        ResponseCookie accessToken = ResponseCookie
-                .from("accessToken", token)
-                .path("/")
-                .httpOnly(true)
-                .maxAge(3600)
-                .sameSite("Lax")
-                .build();
-        response.addHeader("Set-Cookie", accessToken.toString());
+        // TODO: refreshToken 으로 변경
+//        ResponseCookie accessToken = ResponseCookie
+//                .from("accessToken", token)
+//                .path("/")
+//                .httpOnly(true)
+//                .maxAge(3600)
+//                .sameSite("Lax")
+//                .build();
+//        response.addHeader("Set-Cookie", accessToken.toString());
         setTokenResponse(response, token);
     }
 

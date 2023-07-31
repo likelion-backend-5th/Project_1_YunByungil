@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
@@ -25,17 +26,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Cookie[] cookies = request.getCookies();
 
-        if (ObjectUtils.isEmpty(cookies)) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String accessToken = Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("accessToken"))
-                .map(c -> c.getValue())
-                .collect(Collectors.joining());
+        String accessToken = authHeader.split(" ")[1];
         if (!tokenProvider.validToken(accessToken)) {
             filterChain.doFilter(request, response);
             return;
