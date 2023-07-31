@@ -123,26 +123,25 @@ class NegotiationServiceTest {
 
     }
 
-    // TODO
-//    @DisplayName("등록된 제안 제안자 기준 조회 메서드")
-//    @Test
-//    void readAllProposalsByNegotiator() {
-//        // given
-//        createSixNegotiation();
-//        createSixNegotiation2();
-//
-//        int page = 0;
-//        int limit = 5;
-//
-//        // when
-//        Page<NegotiationListResponseDto> negotiationListResponseDto = negotiationService.readAllNegotiation(item.getId(), page, limit, buyer.getId());
-//
-//        // then
-//        assertThat(negotiationListResponseDto.getSize()).isEqualTo(5);
-//        assertThat(negotiationListResponseDto.getTotalElements()).isEqualTo(6);
-//        assertThat(negotiationListResponseDto.hasNext()).isTrue();
-//
-//    }
+    @DisplayName("등록된 제안 제안자 기준 조회 메서드")
+    @Test
+    void readAllProposalsByNegotiator() {
+        // given
+        createSixNegotiation();
+        createSixNegotiation2();
+        createSixNegotiation2();
+
+        int page = 0;
+        int limit = 5;
+
+        // when
+        Page<NegotiationListResponseDto> negotiationListResponseDto = negotiationService.readAllNegotiation(item.getId(), page, limit, buyer.getId());
+
+        // then
+        assertThat(negotiationListResponseDto.getSize()).isEqualTo(5);
+        assertThat(negotiationListResponseDto.getTotalElements()).isEqualTo(6);
+        assertThat(negotiationListResponseDto.hasNext()).isTrue();
+    }
 
     @DisplayName("등록된 제안 수정 테스트 (제안자 기준)")
     @Test

@@ -121,46 +121,6 @@ class NegotiationRepositoryTest {
 
     }
 
-//    @DisplayName("findAllByItemIdAndWriterAndPassword() 메서드 테스트")
-//    @Test
-//    void findAllByItemAndWriterAndPassword() {
-//        // given
-//        final Long itemId = 1L;
-//        final int page = 0;
-//        final int limit = 5;
-//        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
-//                .suggestedPrice(10_000)
-//                .writer("제안 작성자")
-//                .password("제안 비밀번호")
-//                .build();
-//
-//        Negotiation negotiation = null;
-//        for (int i = 0; i < 5; i++) {
-//            negotiation = repository.save(createDto.toEntity(itemId));
-//        }
-//
-//        NegotiationCreateRequestDto createDto2 = NegotiationCreateRequestDto.builder()
-//                .suggestedPrice(10_000)
-//                .writer("제안 작성자2")
-//                .password("제안 비밀번호2")
-//                .build();
-//
-//        Negotiation negotiation2 = null;
-//        for (int i = 0; i < 5; i++) {
-//            negotiation2 = repository.save(createDto2.toEntity(itemId));
-//        }
-//
-//        Pageable pageable = PageRequest.of(page, limit);
-//
-//        // when
-//        Page<Negotiation> allByItemIdAndWriterAndPassword =
-//                repository.findAllByItemIdAndWriterAndPassword(itemId, negotiation.getWriter(), negotiation.getPassword(), pageable);
-//
-//        // then
-//        assertThat(allByItemIdAndWriterAndPassword.getTotalElements()).isEqualTo(5);
-//
-//    }
-
     @DisplayName("findByItemId() 메서드 테스트")
     @Test
     void findByItemId() {
@@ -185,7 +145,40 @@ class NegotiationRepositoryTest {
         assertThat(repository.existsByItemId(item.getId())).isTrue();
         assertThat(negotiation.getSuggestedPrice()).isEqualTo(price);
         assertThat(negotiation2.getSuggestedPrice()).isEqualTo(price2);
+    }
 
+    @DisplayName("findAllByItemIdAndUserId() 메서드 테스트")
+    @Test
+    void findAllByItemAndWriterAndPassword() {
+        // given
+        final int page = 0;
+        final int limit = 5;
+        NegotiationCreateRequestDto createDto = NegotiationCreateRequestDto.builder()
+                .suggestedPrice(10_000)
+                .build();
+
+        Negotiation negotiation = null;
+        for (int i = 0; i < 5; i++) {
+            negotiation = repository.save(createDto.toEntity(item, buyer));
+        }
+
+        NegotiationCreateRequestDto createDto2 = NegotiationCreateRequestDto.builder()
+                .suggestedPrice(10_000)
+                .build();
+
+        Negotiation negotiation2 = null;
+        for (int i = 0; i < 3; i++) {
+            negotiation2 = repository.save(createDto2.toEntity(item, buyer2));
+        }
+
+        Pageable pageable = PageRequest.of(page, limit);
+
+        // when
+        Page<Negotiation> allByItemIdAndWriterAndPassword =
+                repository.findAllByItemIdAndUserId(item.getId(), buyer.getId(), pageable);
+
+        // then
+        assertThat(allByItemIdAndWriterAndPassword.getTotalElements()).isEqualTo(5);
     }
 
     @DisplayName("구매가 확정되었을 때 그 구매 제안을 제외한 나머지 제안은 거절로 변경하는 메서드 테스트")
