@@ -62,7 +62,7 @@ public class TokenProvider {
         }
     }
 
-    private Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         return jwtParser.parseClaimsJws(token)
                 .getBody();
     }
