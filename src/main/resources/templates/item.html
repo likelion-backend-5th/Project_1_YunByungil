@@ -32,6 +32,7 @@
             </article>
             <hr>
             <article>
+                <form id="reply-create-btn">
                 <div class="row-6" th:each="comment : ${commentList}">
 
                     <div class="card">
@@ -40,18 +41,25 @@
                     </div>
 
                     <div class="card-body">
+                        <div class="comment" data-commentid="${comment.id}">
+
                         <h5 class="card-title" th:text="${comment.content}"></h5>
                         <p class="card-text" th:text="${comment.reply}"></p>
-                        <a th:href="@{/views/items/{id}(id=${item.id})}" class="btn btn-primary">답글 달기</a>
+                        <input type="hidden" class="comment-id" th:value="${comment.id}">
+                        <input type="text" class="form-control reply-input" placeholder="내용">
+
+                        <button type="button" class="reply-btn btn btn-primary btn-sm" id="reply-btn">답글 등록</button>
+                        </div>
                     </div>
                     <br>
                 </div>
+                </form>
             </article>
             <hr>
 
             <article>
                 <input type="text" class="form-control" placeholder="내용" id="content">
-                <button tpye="button" id="comment-create-btn" class="btn btn-primary btn-sm">등록</button>
+                <button type="button" id="comment-create-btn" class="btn btn-primary btn-sm">등록</button>
             </article>
 
         </div>
