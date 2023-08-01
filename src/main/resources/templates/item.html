@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>아이템 상세보기</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="p-5 mb-5 text-center</> bg-light">
+    <h1 class="mb-3">Market</h1>
+    <h4 class="mb-3">Mutsa-Market에 오신 것을 환영합니다.</h4>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <article>
+                <input type="hidden" id="item-id" th:value="${item.id}">
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1" th:text="${item.title}"></h1>
+                </header>
+
+                <section class="mb-5">
+                    <p class="fs-5 mb-4" th:text="${item.description}"></p>
+                </section>
+
+<!--                <button type="button" id="modify-btn"-->
+<!--                        th:onclick="|location.href='@{/new-post?id={postId}(postId=${post.id})}'|"-->
+<!--                        class="btn btn-primary btn-sm">수정</button>-->
+<!--                <button type="button" id="delete-btn" class="btn btn-secondary btn-sm">삭제</button>-->
+            </article>
+            <hr>
+            <article>
+                <form id="reply-create-btn">
+                <div class="row-6" th:each="comment : ${commentList}">
+
+                    <div class="card">
+                        <div class="card-header" th:text="${comment.id}">
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="comment" data-commentid="${comment.id}">
+
+                        <h5 class="card-title" th:text="${comment.content}"></h5>
+                        <p class="card-text" th:text="${comment.reply}"></p>
+                        <input type="hidden" class="comment-id" th:value="${comment.id}">
+                        <input type="text" class="form-control reply-input" placeholder="내용">
+
+                        <button type="button" class="reply-btn btn btn-primary btn-sm" id="reply-btn">답글 등록</button>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+                </form>
+            </article>
+            <hr>
+
+            <article>
+                <input type="text" class="form-control" placeholder="내용" id="content">
+                <button type="button" id="comment-create-btn" class="btn btn-primary btn-sm">등록</button>
+            </article>
+
+        </div>
+    </div>
+</div>
+
+<script src="/js/comment.js"></script>
+
+</body>
+</html>

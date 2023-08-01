@@ -62,7 +62,7 @@
             console.log(response.status)
             if (response.ok) response.json().then(body => {
                 console.log(body.data.accessToken)
-                location.href = "http://localhost:8080/token/val?token=" + body.data.accessToken
+                location.href = "http://localhost:8080/views/items?token=" + body.data.accessToken
                 // location.href = "http://localhost:8080/views/login?userId=" + body.userId
             })
         })
