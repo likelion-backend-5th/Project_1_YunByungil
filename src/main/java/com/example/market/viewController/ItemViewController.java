@@ -45,4 +45,9 @@ public class ItemViewController {
 
         return "item";
     }
+
+    @GetMapping("/item")
+    public String itemForm() {
+        return "newItem";
+    }
 }
