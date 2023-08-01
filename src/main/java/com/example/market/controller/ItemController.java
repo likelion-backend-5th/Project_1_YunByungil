@@ -71,12 +71,9 @@ public class ItemController {
     @PutMapping("/items/{itemId}/image")
     public ItemResponseDto updateItemImage(@PathVariable Long itemId,
                                            @RequestParam MultipartFile image,
-                                           @RequestParam String writer,
-                                           @RequestParam String password) throws IOException {
-
-        itemService.updateItemImage(itemId, image, writer, password);
+                                           Authentication authentication) throws IOException {
+        Long userId = Long.parseLong(authentication.getName());
+        itemService.updateItemImage(itemId, image, userId);
         return new ItemResponseDto(REGISTER_IMAGE);
     }
-
-
 }
