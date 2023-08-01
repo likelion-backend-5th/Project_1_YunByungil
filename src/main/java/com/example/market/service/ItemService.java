@@ -86,7 +86,7 @@ public class ItemService {
     }
 
     @Transactional
-    public void updateItemImage(Long itemId, MultipartFile image, String writer, String password) throws IOException {
+    public void updateItemImage(Long itemId, MultipartFile image, Long userId) throws IOException {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new MarketAppException(NOT_FOUND_ITEM, NOT_FOUND_ITEM.getMessage()));
 
