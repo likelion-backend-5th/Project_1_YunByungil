@@ -7,6 +7,7 @@ import com.example.market.service.CommentService;
 import com.example.market.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,5 +45,10 @@ public class ItemViewController {
         model.addAttribute("commentList", commentListResponseDto);
 
         return "item";
+    }
+
+    @GetMapping("/item")
+    public String itemForm() {
+        return "newItem";
     }
 }
