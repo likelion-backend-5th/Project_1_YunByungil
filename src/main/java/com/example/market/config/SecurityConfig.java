@@ -33,11 +33,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authHttp -> authHttp
                         .requestMatchers("/join", "/views/**", "/token/**")
                         .permitAll()
+                        .requestMatchers( "/chat/**")
+                        .permitAll()
+                        .requestMatchers("/chatting")
+                        .permitAll()
                         .requestMatchers("/", "/css/**", "/js/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/items/**")
                         .permitAll()
                         .anyRequest()
+//                        .permitAll()
                         .authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
