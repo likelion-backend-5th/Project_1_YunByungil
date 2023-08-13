@@ -17,6 +17,15 @@
             th:onclick="|location.href='@{/views/item}'|" class="btn btn-secondary btn-sm mb-3">
         글 등록
     </button>
+
+    <button type="button" id="chat-list-btn"
+            th:onclick="|location.href='@{/chat/list}'|" class="btn btn-secondary btn-sm mb-3">
+        채팅목록
+    </button>
+<!--    <button type="button" id="chat-list-btn"-->
+<!--            th:onclick="|location.href='@{}'|" class="btn btn-secondary btn-sm mb-3">-->
+<!--        채팅목록-->
+<!--    </button>-->
     <div class="row-6" th:each="item : ${itemList}">
 
         <div class="card">
@@ -36,6 +45,5 @@
 </div>
 
 <script src="/js/token.js"></script>
-
 </body>
 </html>

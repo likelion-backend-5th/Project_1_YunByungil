@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chatting</title>
+
+</head>
+<body onload="">
+<div>
+    <button type="button" id="chat-list-btn" class="btn btn-secondary btn-sm mb-3" onclick="loadRooms()">
+        채팅목록
+    </button>
+    <div id="room-list">
+    </div>
+</div>
+<!--<script src="/js/chat.js"></script>-->
+<script>
+    async function loadRooms() {
+
+        try {
+            const response = await fetch("/chat/rooms", {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('access_token')
+                }
+            });
+
+            if (response.ok) {
+                const chatRooms = await response.json();
+                const roomDiv = document.getElementById("room-list");
+                roomDiv.innerText = "";
+
+                chatRooms.forEach(chatRoom => {
+                    console.log(chatRoom);
+                    const newRoom = document.createElement("div");
+                    const roomLink = document.createElement("a");
+                    roomLink.href = `/chat/${chatRoom.id}/${chatRoom.itemId}`;
+                    roomLink.textContent = chatRoom.itemName;
+                    newRoom.appendChild(roomLink);
+                    roomDiv.appendChild(newRoom);
+                });
+            } else {
+                console.error('방 목록을 가져오는 데 문제가 발생했습니다:', response.statusText);
+            }
+        } catch (error) {
+            console.error('오류가 발생했습니다:', error);
+        }
+    }
+</script>
+</body>
+</html>

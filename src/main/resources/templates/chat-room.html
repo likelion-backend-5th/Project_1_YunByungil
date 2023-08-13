@@ -1,4 +1,4 @@
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Websocket Chatting</title>
 
@@ -12,6 +12,10 @@
             <button type="submit">Send</button>
         </form>
         <a href="/chat"></a>
+        <div th:each="message : ${messages}">
+            <p th:text="|${message.writer}: ${message.content}|"></p>
+<!--            <p th:text="${message.content}"></p>-->
+        </div>
         <p id="response"></p>
     </div>
 
@@ -22,7 +26,9 @@
     let stompClient = null;
     const pathname = window.location.pathname;
     const roomId = parseInt(pathname.split("/")[2]);
-    const nickname = decodeURI(pathname.split("/")[3]);
+    alert(roomId)
+    let nickname = 100
+    // alert('nickname' + nickname)
 
     // function getRoomName() {
     //     fetch(`/chat/rooms/${roomId}/name`).then((response) => {
@@ -32,17 +38,32 @@
     //         })
     //     });
     // }
+    // function getRoomName() {
+    //     fetch(`/chat/rooms/${roomId}/name`, {
+    //         headers: {
+    //             Authorization: 'Bearer ' + localStorage.getItem('access_token'),
+    //             'Content-Type': 'application/json'
+    //         }
+    //     }).then(response => {
+    //         response.json().then(responseBody => {
+    //             alert('getRoomName')
+    //             console.log(responseBody)
+    //             document.getElementById('room-name').innerHTML = responseBody.roomName
+    //         })
+    //     })
+    // }
     function getRoomName() {
-        fetch(`/chat/rooms/${roomId}/name`, {
+        alert('겟룸넴')
+        fetch(`/chat/username`, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('access_token'),
                 'Content-Type': 'application/json'
             }
         }).then(response => {
             response.json().then(responseBody => {
-                alert('getRoomName')
-                console.log(responseBody)
-                document.getElementById('room-name').innerHTML = responseBody.roomName
+                // alert('getRoomName!!!!!!!!!!!!!!!!!')
+                console.log(responseBody.username)
+                nickname = responseBody.username
             })
         })
     }
@@ -54,13 +75,14 @@
         let headers = {
             Authorization: localStorage.getItem('access_token')
         };
-        alert('connect 시작')
+        // alert('connect 시작')
         console.log(headers)
         stompClient.connect(headers, function (frame) {
-            alert('gd')
+            // alert('gd')
             console.log(headers)
             console.log('Connected!!!: ' + frame);
             stompClient.subscribe(`/topic/${roomId}`, function (message) { <!-- subscribe 메서드 config url 동일하다. -->
+                // alert('이번')
                 receiveMessage(JSON.parse(message.body));
             });
         });
@@ -70,13 +92,14 @@
         const response = document.getElementById('response');
         const p = document.createElement('p');
         p.style.wordWrap = 'break-word';
-        p.appendChild(document.createTextNode(messageOutput.sender + ": "
-            + messageOutput.message + " (" + messageOutput.time + ")"));
+        p.appendChild(document.createTextNode(messageOutput.writer + ": "
+            + messageOutput.content));
         response.appendChild(p);
     }
 
     document.getElementById("message-form").addEventListener("submit", (event) => {
         event.preventDefault()
+        // alert('일번')
         const messageInput = document.getElementById('message');
         const message = messageInput.value
         stompClient.send("/app/chat",
@@ -88,8 +111,8 @@
             },
             JSON.stringify({
                 'roomId': roomId,
-                'sender': nickname,
-                'message': message
+                'writer': nickname,
+                'content': message
             }));
         messageInput.value = null
     })

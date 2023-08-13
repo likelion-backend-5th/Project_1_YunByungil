@@ -42,10 +42,12 @@
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                roomName
+                itemId: nickname,
+                roomName: roomName
             })
         })).json();
         const roomId = response.id;
+        console.log(response.id)
         window.location.href = `/chat/${roomId}/${nickname}`;
     }
 </script>
