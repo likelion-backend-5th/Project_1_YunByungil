@@ -1,5 +1,6 @@
 package com.example.market.domain.entity.chat;
 
+import com.example.market.domain.entity.Item;
 import com.example.market.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -18,17 +19,22 @@ public class ChatRoom {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @JoinColumn(name = "buyer_id")
+    private User buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invited_id")
-    private User invited;
+    @JoinColumn(name = "seller_id")
+    private User seller;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @Builder
-    public ChatRoom(User owner, User invited) {
-        this.owner = owner;
-        this.invited = invited;
+    public ChatRoom(User buyer, User seller, Item item) {
+        this.buyer = buyer;
+        this.seller = seller;
+        this.item = item;
     }
 
 }

@@ -2,9 +2,11 @@ package com.example.market.dto.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+//@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {
@@ -12,5 +14,5 @@ public class ChatMessage {
     private Long roomId;
     private String sender;
     private String message;
-    private String time;
+    private String time = "10:10";
 }
